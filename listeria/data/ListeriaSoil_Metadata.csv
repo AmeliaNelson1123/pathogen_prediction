@@ -1,0 +1,39 @@
+﻿Variable,Description,Type
+Latitude,Latitude of the sampling location,Predictor
+Longitude,Longitude of the sampling location,Predictor
+Elevation (m),"Elevation (m) of the sampling location obtained from the US Geological Survey
+(https://viewer.nationalmap.gov/theme/elevation/#/%23bottom) using GPS
+coordinates.",Predictor
+Moisture,"Moisture measure using Methods of Soil Analysis Part 1: Physical and Mineralogical Properties,
+Including Statistics of Measurement and Sampling 128–151",Predictor
+Total nitrogen (%),Total nitrogen of the soil sample,Predictor
+Total carbon (%),Total carbon of the soil sample,Predictor
+pH,pH of the soil sample,Predictor
+Organic matter (%),Organic matter of the soil sample,Predictor
+Aluminum (mg/Kg),Aluminum of the soil sample,Predictor
+Calcium (mg/Kg),Calcium of the soil sample,Predictor
+Copper (mg/Kg),Copper of the soil sample,Predictor
+Iron (mg/Kg),Iron of the soil sample,Predictor
+Potassium (mg/Kg),Potassium of the soil sample,Predictor
+Magnesium (mg/Kg),Magnesium of the soil sample,Predictor
+Manganese (mg/Kg),Manganese of the soil sample,Predictor
+Molybdenum (mg/Kg),Molybdenum of the soil sample,Predictor
+Sodium (mg/Kg),Sodium of the soil sample,Predictor
+Phosphorus (mg/Kg),Phosphorus of the soil sample,Predictor
+Sulfur (mg/Kg),Sulfur of the soil sample,Predictor
+Zinc (mg/Kg),Zinc of the soil sample,Predictor
+Precipitation (mm),Precipitation obtained from National Oceanic and Atmospheric Administration (https://www.esrl.noaa.gov/psd/data/gridded/data.livneh.html) using GPS coordinates,Predictor
+Max temperature,Maximum temperature obtained from National Oceanic and Atmospheric Administration (https://www.esrl.noaa.gov/psd/data/gridded/data.livneh.html) using GPS coordinates,Predictor
+Min temperature,Minimum temperature obtained from National Oceanic and Atmospheric Administration (https://www.esrl.noaa.gov/psd/data/gridded/data.livneh.html) using GPS coordinates,Predictor
+Wind speed (m/s),Windspeed obtained from National Oceanic and Atmospheric Administration (https://www.esrl.noaa.gov/psd/data/gridded/data.livneh.html) using GPS coordinates,Predictor
+Open water (%),Open water obtained from National Oceanic and Atmospheric Administration (https://www.esrl.noaa.gov/psd/data/gridded/data.livneh.html) using GPS coordinates,Predictor
+Developed open space (< 20% Impervious Cover) (%),Percentage of developed open space (< 20% Impervious Cover),Predictor
+Developed open space (> 20% Impervious Cover) (%),Percentage of developed open space (>20% Impervious Cover),Predictor
+Barren (%),Percentage of barren land,Predictor
+Forest (%),Percentage of forest,Predictor
+Shrubland (%),Percentage of shrubland,Predictor
+Grassland (%),Percentage of grassland,Predictor
+Cropland (%),Percentage of cropland,Predictor
+Pasture (%),Percentage of pasture,Predictor
+Wetland (%),Percentage of wetland,Predictor
+Listeria,The Listeria is present if the number of Listeria isolate is larger than 0,Outcome
