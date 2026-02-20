@@ -1,0 +1,8 @@
+pandas
+matplotlib
+seaborn
+sklearn.preprocessing
+numpy
+sklearn
+scipy
+pathlib

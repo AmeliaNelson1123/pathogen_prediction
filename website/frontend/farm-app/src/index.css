@@ -1,0 +1,35 @@
+:root {
+  font-family: "Trebuchet MS", "Gill Sans", "Segoe UI", sans-serif;
+  line-height: 1.45;
+  font-weight: 400;
+  color: #2d1d12;
+  background-color: #f6eee2;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  padding: clamp(0.8rem, 3vw, 2rem);
+  background:
+    radial-gradient(circle at 10% 15%, rgba(246, 138, 65, 0.16), transparent 28%),
+    radial-gradient(circle at 90% 20%, rgba(206, 132, 72, 0.14), transparent 24%),
+    linear-gradient(130deg, #f6eee2 0%, #f6ead8 45%, #f5eadf 100%);
+}
+
+body.dark-mode {
+  background:
+    radial-gradient(circle at 12% 18%, rgba(72, 133, 136, 0.22), transparent 32%),
+    radial-gradient(circle at 82% 12%, rgba(87, 149, 138, 0.18), transparent 24%),
+    linear-gradient(140deg, #1a2328 0%, #1f2b31 45%, #151d21 100%);
+}

@@ -2,13 +2,13 @@
 Project For: IAFP Student Competition
 
 ## Authors:
-YeonJin Jung ()
-Leonie ()
-Linda Kalunga ()
+YeonJin Jung (yj354@cornell.edu)
+Leonie Kemmerling (lk483@cornell.edu)
+Linda Kalunga (lk549@cornell.edu)
 Amelia Nelson (aln65@cornell.edu)
 
 # Last Edit Date:
-02/18/2026
+02/20/2026
 
 ## Goal:
 The intention of this project is to develop a decsion support tool for farmers and growers to identify the risk of Listeria Presense.
@@ -44,12 +44,35 @@ pip install -r requirements.txt
 
 
 ### To Run Website Interface
+Create 2 powershel terminals:
+
+1 terminal will be designated as the backend, and one terminal will be designated as the frontend
+
+### Backend terminal
+``` bash
+cd \pathogen_prediction_comp\website\backend
+py -3.10 -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python --version
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
+``` 
+
+### Frontend terminal
+``` bash
+cd \pathogen_prediction_comp\website\frontend\farm-app
+npm install
+npm run dev
+```
+
 
 ### To Run Exploratory Data Analysis:
+Open preparation\listeria_eda.ipynb, and run all cells with a python 3.10 python interpreter.
 
+### To Run Models used in the website:
 
-### To Run Models:
-
+### To Run our Modeling Testing Process:
+Open preparation\Run_Models_and_Analyze.ipynb, and run all cells with a python 3.10 python interpreter.
 
 ## Repository Structure:
 /data -> Raw and processed data

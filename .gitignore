@@ -1,0 +1,16 @@
+# Python virtual environments
+.venv/
+venv/
+env/
+ENV/
+
+# Any nested venv folders
+**/.venv/
+**/venv/
+
+website/backend/.venv/
+
+__pycache__
+
+package-lock.json
+

@@ -1,0 +1,303 @@
+.app-shell {
+  --hero-bg: linear-gradient(115deg, rgba(255, 255, 255, 0.84), rgba(247, 232, 215, 0.88));
+  --hero-border: rgba(125, 67, 27, 0.2);
+  --hero-shadow: rgba(124, 75, 37, 0.12);
+  --text-strong: #3e2214;
+  --text-body: #573627;
+  --label: #5b3a28;
+  --kicker: #7f3b14;
+  --card-bg: rgba(255, 255, 255, 0.84);
+  --card-border: rgba(136, 79, 37, 0.18);
+  --card-shadow: rgba(121, 66, 31, 0.08);
+  --field-bg: #fff9f4;
+  --field-border: rgba(136, 79, 37, 0.35);
+  --chip-bg: #fff5ee;
+  --chip-border: rgba(138, 78, 35, 0.33);
+  --chip-text: #5f3521;
+  --hint: #72472d;
+  --pill-bg: #fff6ee;
+  --pill-border: rgba(136, 79, 37, 0.25);
+  --pill-text: #5d3622;
+  --result-bg: #fff6eb;
+  --result-border: rgba(122, 72, 36, 0.2);
+  --result-text: #4b2e21;
+  --result-heading: #4f2e1f;
+  --toggle-bg: #fff4e9;
+  --toggle-border: rgba(128, 74, 35, 0.35);
+  --toggle-text: #5f3521;
+  --chip-active-bg: #f56a1d;
+  --chip-active-border: #dc560e;
+  --chip-active-text: #fff8f3;
+  --chip-clear-bg: #fef0e4;
+  --run-bg-start: #f06a1c;
+  --run-bg-end: #db8e35;
+  --run-shadow: rgba(195, 105, 37, 0.28);
+  width: min(1120px, 100%);
+  margin: 0 auto;
+  display: grid;
+  gap: 1.25rem;
+}
+
+.hero-panel {
+  background: var(--hero-bg);
+  border: 1px solid var(--hero-border);
+  border-radius: 1.25rem;
+  padding: clamp(1rem, 2.5vw, 2rem);
+  box-shadow: 0 12px 24px var(--hero-shadow);
+  animation: slideIn 450ms ease-out;
+}
+
+.hero-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.8rem;
+}
+
+.kicker {
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  color: var(--kicker);
+  font-size: 0.75rem;
+}
+
+.hero-panel h1 {
+  margin: 0.35rem 0 0;
+  font-size: clamp(1.45rem, 4vw, 2.2rem);
+  line-height: 1.1;
+  color: var(--text-strong);
+}
+
+.hero-copy {
+  margin: 0.7rem 0 0;
+  max-width: 70ch;
+  color: var(--text-body);
+}
+
+.theme-toggle {
+  border: 1px solid var(--toggle-border);
+  background: var(--toggle-bg);
+  color: var(--toggle-text);
+  border-radius: 999px;
+  padding: 0.35rem 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: 1.4fr 1fr;
+}
+
+.card {
+  background: var(--card-bg);
+  backdrop-filter: blur(3px);
+  border: 1px solid var(--card-border);
+  border-radius: 1rem;
+  padding: 1rem;
+  box-shadow: 0 10px 22px var(--card-shadow);
+  animation: slideIn 500ms ease-out;
+}
+
+.card h2 {
+  margin: 0 0 1rem;
+  font-size: 1.15rem;
+  color: var(--text-strong);
+}
+
+.label {
+  display: block;
+  margin: 0.8rem 0 0.38rem;
+  color: var(--label);
+  font-weight: 700;
+  font-size: 0.86rem;
+}
+
+.file-input,
+.text-input,
+.select-input {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--field-border);
+  border-radius: 0.72rem;
+  background: var(--field-bg);
+  color: var(--text-strong);
+  padding: 0.62rem 0.72rem;
+  font: inherit;
+}
+
+.file-input:focus,
+.text-input:focus,
+.select-input:focus {
+  outline: 2px solid rgba(240, 106, 28, 0.35);
+  border-color: #f06a1c;
+}
+
+.toggle-row {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.chip {
+  border: 1px solid var(--chip-border);
+  border-radius: 999px;
+  padding: 0.4rem 0.75rem;
+  font-weight: 700;
+  color: var(--chip-text);
+  background: var(--chip-bg);
+  cursor: pointer;
+}
+
+.chip.active {
+  background: var(--chip-active-bg);
+  color: var(--chip-active-text);
+  border-color: var(--chip-active-border);
+}
+
+.chip.clear {
+  background: var(--chip-clear-bg);
+}
+
+.manual-grid {
+  display: grid;
+  gap: 0.6rem;
+  grid-template-columns: 1fr 1fr;
+}
+
+.map-wrap {
+  margin-top: 0.7rem;
+}
+
+.map {
+  width: 100%;
+  height: 320px;
+  border-radius: 0.85rem;
+  border: 1px solid rgba(125, 67, 27, 0.25);
+}
+
+.hint {
+  margin: 0.55rem 0 0;
+  color: var(--hint);
+  font-size: 0.82rem;
+}
+
+.coord-readout {
+  margin-top: 0.9rem;
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.coord-readout span {
+  background: var(--pill-bg);
+  border: 1px solid var(--pill-border);
+  border-radius: 999px;
+  padding: 0.3rem 0.7rem;
+  font-size: 0.82rem;
+  color: var(--pill-text);
+}
+
+.run-btn {
+  margin-top: 1rem;
+  width: 100%;
+  border: 0;
+  border-radius: 0.75rem;
+  padding: 0.7rem 1rem;
+  background: linear-gradient(95deg, var(--run-bg-start), var(--run-bg-end));
+  color: #fffaf5;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 8px 16px var(--run-shadow);
+}
+
+.run-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.result-box {
+  margin-top: 1rem;
+  min-height: 170px;
+  border-radius: 0.85rem;
+  padding: 0.8rem;
+  border: 1px solid var(--result-border);
+  background: var(--result-bg);
+  overflow-wrap: anywhere;
+}
+
+.result-box h3 {
+  margin: 0 0 0.45rem;
+  color: var(--result-heading);
+}
+
+.result-box p {
+  margin: 0;
+  color: var(--result-text);
+}
+
+.app-shell.theme-dark {
+  --hero-bg: linear-gradient(115deg, rgba(34, 52, 58, 0.9), rgba(29, 41, 47, 0.92));
+  --hero-border: rgba(124, 170, 174, 0.28);
+  --hero-shadow: rgba(0, 0, 0, 0.33);
+  --text-strong: #d8edf0;
+  --text-body: #aac4c7;
+  --label: #aac4c7;
+  --kicker: #8eb9d8;
+  --card-bg: rgba(35, 47, 53, 0.86);
+  --card-border: rgba(133, 173, 176, 0.24);
+  --card-shadow: rgba(0, 0, 0, 0.28);
+  --field-bg: rgba(24, 33, 38, 0.96);
+  --field-border: rgba(122, 163, 167, 0.32);
+  --chip-bg: rgba(43, 57, 62, 0.95);
+  --chip-border: rgba(120, 161, 165, 0.32);
+  --chip-text: #d6ecef;
+  --hint: #a6c7cb;
+  --pill-bg: rgba(47, 62, 67, 0.94);
+  --pill-border: rgba(122, 163, 167, 0.3);
+  --pill-text: #d5eaed;
+  --result-bg: rgba(33, 45, 50, 0.96);
+  --result-border: rgba(122, 163, 167, 0.28);
+  --result-text: #c9e1e6;
+  --result-heading: #8eb9d8;
+  --toggle-bg: rgba(42, 56, 61, 0.94);
+  --toggle-border: rgba(126, 167, 171, 0.35);
+  --toggle-text: #d2e8ec;
+  --chip-active-bg: #4e7f83;
+  --chip-active-border: #65979b;
+  --chip-active-text: #ecf9fb;
+  --chip-clear-bg: rgba(41, 54, 59, 0.94);
+  --run-bg-start: #4b7b80;
+  --run-bg-end: #5d8d90;
+  --run-shadow: rgba(25, 42, 46, 0.35);
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 620px) {
+  .manual-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .map {
+    height: 270px;
+  }
+}
