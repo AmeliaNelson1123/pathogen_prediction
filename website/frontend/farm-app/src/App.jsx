@@ -337,8 +337,8 @@ function App() {
 
           <label className="label">Model Mode (with or without soil/coordinates)</label>
           <select className="select-input" value={longlatMode} onChange={(e) => setLonglatMode(e.target.value)}>
-            <option value="longlat_only">Latitude and Longitude Included</option>
-            <option value="soil_only">Soil Information Only</option>
+            <option value="with_longlat">Latitude and Longitude Included</option>
+            <option value="with_soil">Soil Information Only</option>
             <option value="soil_longlat">Both Soil and Latitude Longitude Information</option>
           </select>
 

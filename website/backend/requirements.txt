@@ -5,3 +5,4 @@ pandas
 joblib
 scikit-learn
 earthengine-api
+numpy

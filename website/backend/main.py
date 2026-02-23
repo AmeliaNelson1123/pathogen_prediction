@@ -10,6 +10,7 @@ from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 
 import ee
+import numpy as np
 
 # ------------------------------
 # --- Global variables ---------
@@ -36,11 +37,11 @@ MODEL_PATHS: dict[str, dict[str, Path]] = {
         "risk": BASE_DIR / "risk_mode.pkl",
     },
     "longlat_only": {
-        "prediction": BASE_DIR / "input_model_file_without_soil.pkl",
+        "prediction": BASE_DIR / "input_model_file_only_longlat.pkl",
         "risk": BASE_DIR / "risk_model_without_soil.pkl",
     },
     "soil_only": {
-        "prediction": BASE_DIR / "input_model_file_without_longlat.pkl",
+        "prediction": BASE_DIR / "input_model_file_only_soil.pkl",
         "risk": BASE_DIR / "risk_model_without_longlat.pkl",
     },
 }
@@ -49,6 +50,28 @@ MODEL_PATHS: dict[str, dict[str, Path]] = {
 MODEL_CACHE: dict[str, Any] = {}
 EE_INITIALIZED = False
 
+# Soil and Long/lat variables to group
+SOIL_VARS = ['pH', 'Copper (mg/Kg)', 'Molybdenum (mg/Kg)', 'Sulfur (mg/Kg)', 'Moisture',
+       'Manganese (mg/Kg)', 'Aluminum (mg/Kg)', 'Potassium (mg/Kg)',
+       'Total nitrogen (%)', 'double Zinc (mg/Kg)', 'Organic matter (%)', 'Phosphorus (mg/Kg)',
+       'Iron (mg/Kg)', 'Magnesium (mg/Kg)', 'Sodium (mg/Kg)', 'Calcium (mg/Kg)']
+LOG_SOIL_VARS = ['Sulfur (mg/Kg)', 'Moisture',
+       'Manganese (mg/Kg)', 'Aluminum (mg/Kg)', 'Potassium (mg/Kg)',
+       'Total nitrogen (%)', 'Organic matter (%)', 'Phosphorus (mg/Kg)',
+       'Iron (mg/Kg)', 'Magnesium (mg/Kg)', 'Sodium (mg/Kg)', 'Calcium (mg/Kg)']
+DOUBLE_LOG_SOIL_VARS = ['double Zinc (mg/Kg)']
+
+LONGLAT_VARS = ['Latitude', 'Longitude', 
+       'Precipitation (mm)', 'Max temperature (℃ )', 'Min temperature (℃ )',
+       'Wind speed (m/s)', 'Barren (%)', 'Forest (%)', 'Pasture (%)',
+       'Grassland (%)', 'Shrubland (%)',
+       'Open water (%)', 'Total carbon (%)',
+       'Developed open space (> 20% Impervious Cover) (%)', 'Elevation (m)',
+        'Cropland (%)', 'Wetland (%)', "Developed open space (< 20% Impervious Cover) (%)"]
+LOG_LONGLAT_VARS = ['Grassland (%)', 'Shrubland (%)',
+        'Open water (%)', 'Total carbon (%)',
+        'Developed open space (> 20% Impervious Cover) (%)', 'Elevation (m)',
+        'Cropland (%)', 'Wetland (%)', "Developed open space (< 20% Impervious Cover) (%)"]
 # ------------------------------
 # --- Helper Functions ---------
 # ------------------------------
@@ -189,6 +212,68 @@ def get_nlcd_percentages(lat: float, lon: float, buffer_m: int = 1000) -> dict[s
 
 
 # -----------------------------------------
+# --- Data Preparation for Modeling -------
+# -----------------------------------------
+
+def data_prep(file_info, model_variant):
+    """
+    ----- inputs -----
+    file_info: Path object
+        file wanting to process
+    ----- outputs ----
+    df: pandas df
+        processed anonymzied data (string columns representing intervals split into min and max, then put as minimum and maximum values for those columns)
+    """
+
+    df = pd.read_csv(file_info)
+
+    # doing log transformations of all models if needed
+    # comment out if choose a model that does not have log transformations
+    if model_variant == "soil_only":
+        for col in LOG_SOIL_VARS:
+            # print(col)
+            df[f"log of {col}"] = np.log(df[col])
+
+        df = df.drop(columns=LOG_SOIL_VARS)
+    if model_variant == "longlat_only":
+        for col in LOG_LONGLAT_VARS:
+            # print(col)
+            df[f"log of {col}"] = np.log(df[col])
+
+        df = df.drop(columns=LOG_LONGLAT_VARS)
+    if model_variant == "soil_longlat":
+        for col in LOG_LONGLAT_VARS:
+            # print(col)
+            df[f"log of {col}"] = np.log(df[col])
+        for col in LOG_SOIL_VARS:
+            # print(col)
+            df[f"log of {col}"] = np.log(df[col])
+        df = df.drop(columns=LOG_SOIL_VARS)
+        df = df.drop(columns=LOG_LONGLAT_VARS)
+
+
+    # Drop 'index' column if it exists, as it's typically an artifact and not a feature
+    if 'index' in df.columns:
+        df = df.drop(columns=['index'])
+
+    # switching missing values and weird failures in writing to np.inf bc pandas didnt handle properly
+    df = df.replace("#NAME?", -np.inf)
+    df = df.fillna(-np.inf)
+
+    # replacing inf with max number that is not max number + 100 in dict (FOR NOT JUST 99999999)
+    df = df.replace(np.inf, 99999)
+    # replacing -inf with min number (not -inf) - 100 in dict (FOR NOT JUST -99999999)
+    df = df.replace(-np.inf, -99999)
+
+    df = df.dropna(axis=1, how="all")
+
+    # scale if needed (manually change if non-scaled model is chosen)
+
+    # if ENCODE_STR:
+    #     df = pd.get_dummies(df)
+    return df
+
+# -----------------------------------------
 # --- Loading and Checking Models ---------
 # -----------------------------------------
 
@@ -260,15 +345,23 @@ async def predict(
             status_code=400, detail="the model type must be 'prediction' or 'risk'."
         )
     
-    # feedback for user if they did not input the long lat option... should not happen though
-    if longlat_mode not in ("with_longlat", "with_soil", "soil_longlat"):
+    # Normalize aliases so frontend naming changes do not break backend routing.
+    longlat_mode_aliases = {
+        "with_longlat": "longlat_only",
+        "with_soil": "soil_only",
+        "soil_longlat": "soil_longlat",
+        "longlat_only": "longlat_only",
+        "soil_only": "soil_only",
+    }
+    if longlat_mode not in longlat_mode_aliases:
         raise HTTPException(
             status_code=400,
             detail="Must select one of the model options. Try reselecting from the dropdown.",
         )
+    normalized_mode = longlat_mode_aliases[longlat_mode]
 
     # automatically working with if there is a csv inputed or not and running with and without soil
-    if longlat_mode == "soil_only":
+    if normalized_mode == "soil_only":
         # attempting to read in the csv
         try:
             contents = await file.read()
@@ -281,10 +374,12 @@ async def predict(
         # making sure the longitude and latitude is inputed 
         # (because cannot run on no data, so either enviro from long/lat or soil is required)
         model_variant = "soil_only"
-    elif longlat_mode == "longlat_only":  
+    elif normalized_mode == "longlat_only":
         # handeling api calls to get data with long and lat
-        X = [[lat, lon]]
-        
+        X = {
+            "latitude": lat,
+            "longitude": lon,
+        }
         # checking to make sure the long lat is only inside the USA
         if lat is None or lon is None:
             raise HTTPException(status_code=400, detail="The latitude and longitude provided are not completed or correct")
@@ -293,13 +388,17 @@ async def predict(
 
         gis_start = perf_counter()
         nlcd_percentages = get_nlcd_percentages(lat=lat, lon=lon, buffer_m=1000)
+        print(type(nlcd_percentages))
+        
         gis_fetch_ms = int((perf_counter() - gis_start) * 1000)
         gis_loaded = True
         model_variant = "longlat_only"
-
-    elif longlat_mode == "soil_longlat":
+    elif normalized_mode == "soil_longlat":
         # handeling api calls to get data with long and lat
-        X = [[lat, lon]]
+        X = {
+            "latitude": lat,
+            "longitude": lon,
+        }
         
         # checking to make sure the long lat is only inside the USA
         if lat is None or lon is None:
@@ -309,13 +408,17 @@ async def predict(
 
         gis_start = perf_counter()
         nlcd_percentages = get_nlcd_percentages(lat=lat, lon=lon, buffer_m=1000)
+        print(type(nlcd_percentages))
         gis_fetch_ms = int((perf_counter() - gis_start) * 1000)
         gis_loaded = True
+
+        print("hit line 315")
 
         # attempting to read in the csv
         try:
             contents = await file.read()
             df = pd.read_csv(io.BytesIO(contents))
+            print("made it in the try")
             X = df.to_numpy()
         except Exception as exc:
             raise HTTPException(

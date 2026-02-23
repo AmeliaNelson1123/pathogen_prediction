@@ -34,23 +34,28 @@ The intention of this project is to develop a decsion support tool for farmers a
 ## Installation Instructions:
 
 ### Python version: 3.10
-### Requred dependencies are 
+### Requred dependencies are listed in requirements.txt, and differ for the website application vs the model preparation and analysis
 ### RAM requirements: suggusted to have at least 16 GB of RAM available for running models
 
+``` bash
+https://github.com/AmeliaNelson1123/pathogen_prediction.git
+cd pathogen_prediction
+```
 
-git clone https://github.com/username/project.git
-cd project
+Optional 
+``` bash
 pip install -r requirements.txt
-
+```
 
 ### To Run Website Interface
 Create 2 powershel terminals:
+Ensure both terminals are in the *pathogen_prediction/* folder cloned in from the website
 
 1 terminal will be designated as the backend, and one terminal will be designated as the frontend
 
 ### Backend terminal
 ``` bash
-cd \pathogen_prediction_comp\website\backend
+cd website/backend
 py -3.10 -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python --version
@@ -61,7 +66,7 @@ python -m uvicorn main:app --reload
 
 ### Frontend terminal
 ``` bash
-cd \pathogen_prediction_comp\website\frontend\farm-app
+cd website/frontend/farm-app
 npm install
 npm run dev
 ```
