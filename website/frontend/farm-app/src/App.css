@@ -1,3 +1,5 @@
+/* Global palette!!! and sizing tokens used by all the bubbles/cards */
+/* App shell wrapper around all bubbles */
 .app-shell {
   --hero-bg: linear-gradient(115deg, rgba(255, 255, 255, 0.84), rgba(247, 232, 215, 0.88));
   --hero-border: rgba(125, 67, 27, 0.2);
@@ -38,6 +40,7 @@
   gap: 1.25rem;
 }
 
+/* Bubble: Listeria Prediction Tool Intro (title, description, and top controls) */
 .hero-panel {
   background: var(--hero-bg);
   border: 1px solid var(--hero-border);
@@ -47,6 +50,7 @@
   animation: slideIn 450ms ease-out;
 }
 
+/* top row bubble: "Field-Listeria Intelligence" and Dark/Light toggle */
 .hero-top-row {
   display: flex;
   justify-content: space-between;
@@ -63,6 +67,7 @@
   font-size: 0.75rem;
 }
 
+/* Intro bubble text content: main title and project description */
 .hero-panel h1 {
   margin: 0.35rem 0 0;
   font-size: clamp(1.45rem, 4vw, 2.2rem);
@@ -86,6 +91,7 @@
   cursor: pointer;
 }
 
+/* Two-bubble layout: left = Data Input, right = Model Control */
 .grid {
   display: grid;
   gap: 1rem;
@@ -108,6 +114,7 @@
   color: var(--text-strong);
 }
 
+/* Labels inside Data Input and Model Control bubbles */
 .label {
   display: block;
   margin: 0.8rem 0 0.38rem;
@@ -116,6 +123,7 @@
   font-size: 0.86rem;
 }
 
+/* Shared form fields (CSV picker, lat/lon fields, dropdowns) */
 .file-input,
 .text-input,
 .select-input {
@@ -136,6 +144,36 @@
   border-color: #f06a1c;
 }
 
+/*data input bubble: CSV upload row (file picker and inline help icon) */
+.csv-upload-row {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.csv-upload-row .file-input {
+  flex: 1;
+}
+
+.csv-inline-help {
+  white-space: nowrap;
+}
+
+.csv-inline-help-icon {
+  width: 2.2rem;
+  min-width: 2.2rem;
+  height: 2.2rem;
+  padding: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  font-size: 1rem;
+  line-height: 1;
+  font-weight: 800;
+}
+
+/* Reusable chip buttons (map/manual toggle, clear actions, sample links) */
 .toggle-row {
   display: flex;
   gap: 0.5rem;
@@ -162,6 +200,58 @@
   background: var(--chip-clear-bg);
 }
 
+/*data input bubble: row under CSV picker (Clear CSV and the sample files) */
+.csv-tools-row {
+  margin-top: 0.6rem;
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.sample-link {
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
+/* Data Input bubble: expandable "Required CSV columns" help panel */
+.csv-help-box {
+  margin-top: 0.6rem;
+  border: 1px solid var(--result-border);
+  border-radius: 0.75rem;
+  background: var(--result-bg);
+  padding: 0.65rem;
+}
+
+.csv-help-title {
+  margin: 0;
+  color: var(--result-heading);
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.csv-help-note {
+  margin: 0.45rem 0 0;
+  color: var(--result-text);
+  font-size: 0.78rem;
+}
+
+.csv-help-list {
+  margin: 0.55rem 0 0;
+  max-height: 180px;
+  overflow: auto;
+  border: 1px solid var(--pill-border);
+  border-radius: 0.55rem;
+  background: var(--field-bg);
+  color: var(--text-strong);
+  font-size: 0.74rem;
+  line-height: 1.35;
+  padding: 0.55rem;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* Data Input bubble: location section (manual entry, map, and coordinate pills) */
 .manual-grid {
   display: grid;
   gap: 0.6rem;
@@ -201,6 +291,7 @@
   color: var(--pill-text);
 }
 
+/* Model Control bubble: Run button and the result output bubble */
 .run-btn {
   margin-top: 1rem;
   width: 100%;
@@ -217,6 +308,34 @@
 .run-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+}
+
+.progress-meta {
+  margin-top: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  font-size: 0.8rem;
+  color: var(--result-text);
+}
+
+.progress-track {
+  margin-top: 0.35rem;
+  height: 0.55rem;
+  width: 100%;
+  border-radius: 999px;
+  background: var(--pill-bg);
+  border: 1px solid var(--pill-border);
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 999px;
+  background: linear-gradient(95deg, var(--run-bg-start), var(--run-bg-end));
+  transition: width 220ms ease;
 }
 
 .result-box {
@@ -239,6 +358,7 @@
   color: var(--result-text);
 }
 
+/* Dark mode palette overrides for every bubble/control */
 .app-shell.theme-dark {
   --hero-bg: linear-gradient(115deg, rgba(34, 52, 58, 0.9), rgba(29, 41, 47, 0.92));
   --hero-border: rgba(124, 170, 174, 0.28);
@@ -275,6 +395,7 @@
   --run-shadow: rgba(25, 42, 46, 0.35);
 }
 
+/* the entry animation used by intro bubble and both main bubbles */
 @keyframes slideIn {
   from {
     opacity: 0;
@@ -286,15 +407,22 @@
   }
 }
 
+/* Responsive: stack Data Input and Model Control bubbles vertically */
 @media (max-width: 900px) {
   .grid {
     grid-template-columns: 1fr;
   }
 }
 
+/* Responsive (mobile): stack location inputs, and CSV upload controls */
 @media (max-width: 620px) {
   .manual-grid {
     grid-template-columns: 1fr;
+  }
+
+  .csv-upload-row {
+    flex-direction: column;
+    align-items: stretch;
   }
 
   .map {

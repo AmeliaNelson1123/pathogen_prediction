@@ -56,6 +56,7 @@ py -3.10 -m venv .venv
 python --version
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
+python -m uvicorn main:app --reload
 ``` 
 
 ### Frontend terminal
@@ -64,6 +65,8 @@ cd \pathogen_prediction_comp\website\frontend\farm-app
 npm install
 npm run dev
 ```
+
+Once the backend, then frontend have started, click the http link in your terminal to open the webapp.
 
 
 ### To Run Exploratory Data Analysis:
@@ -92,12 +95,13 @@ We chose to keep our preliminary work on evaluating the data (listeria_eda.ipynb
 Data was provided by:
 * Liao, J., Guo, X., Weller, D.L. et al. Nationwide genomic atlas of soil-dwelling Listeria reveals effects of selection and population ecology on pangenome evolution. Nat Microbiol 6, 1021–1030 (2021). https://doi.org/10.1038/s41564-021-00935-7
 
-Influence from Models Chosen was developed from:
+Influence from Models Chosen was developed from (and public repository created by):
 * Chenhao Qian, Huan Yang, Jayadev Acharya, Jingqiu Liao, Renata Ivanek, Martin Wiedmann,
 Initializing a Public Repository for Hosting Benchmark Datasets to Facilitate Machine Learning Model Development in Food Safety, Journal of Food Protection, Volume 88, Issue 3, 2025, 100463, ISSN 0362-028X, https://doi.org/10.1016/j.jfp.2025.100463.
 
-API Calls were made to:
+API Calls were made to or External Data Downloads were made to:
 * Livneh daily CONUS near-surface gridded meteorological and derived hydrometeorological data (1915-2011). https://psl.noaa.gov/data/gridded/data.livneh.html
+* For geospatial, land coverage data, to be the most comparable to ARC-GIS, we decided to work with the National Land Cover Database by USGS as hosted by the Google Earch Engine. https://www.usgs.gov/node/279743.
 
 
 Inspiration for development was prompted by IAFP Student Competition Hackathon 2026.
