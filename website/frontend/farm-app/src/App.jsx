@@ -5,8 +5,6 @@ import "./App.css";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
 const REQUIRED_CSV_COLUMNS_WITH_LONLAT = [
-  "Sampling date",
-  "Sampling grid",
   "Moisture",
   "Total nitrogen (%)",
   "Total carbon (%)",
@@ -50,11 +48,13 @@ function LocationPicker({ setLatInput, setLonInput }) {
 {/*Setting main variables and default states*/}
 function App() {
   const [theme, setTheme] = useState("light");
+  const [showHelpModal, setShowHelpModal] = useState(false);
   const [locationMode, setLocationMode] = useState("map");
   const [latInput, setLatInput] = useState("");
   const [lonInput, setLonInput] = useState("");
+  const [forecastDateInput, setForecastDateInput] = useState("");
   const [modelType, setModelType] = useState("prediction");
-  const [longlatMode, setLonglatMode] = useState("with_longlat");
+  const [longlatMode, setLonglatMode] = useState("longlat_only");
   const [file, setFile] = useState(null);
   const [result, setResult] = useState("");
   const [loading, setLoading] = useState(false);
@@ -70,6 +70,28 @@ function App() {
   const validLat = latInput !== "" && !Number.isNaN(parsedLat) && parsedLat >= -90 && parsedLat <= 90;
   const validLon = lonInput !== "" && !Number.isNaN(parsedLon) && parsedLon >= -180 && parsedLon <= 180;
   const hasValidCoordinates = validLat && validLon;
+
+  const parseForecastDate = (raw) => {
+    const match = /^(\d{2})\/(\d{2})\/(\d{4})$/.exec(raw.trim());
+    if (!match) return null;
+    const month = Number(match[1]);
+    const day = Number(match[2]);
+    const year = Number(match[3]);
+    const date = new Date(Date.UTC(year, month - 1, day));
+    const validDate =
+      date.getUTCFullYear() === year &&
+      date.getUTCMonth() === month - 1 &&
+      date.getUTCDate() === day;
+    return validDate ? date : null;
+  };
+
+  const isForecastDateAllowed = (dateUtc) => {
+    const now = new Date();
+    const todayUtc = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
+    const maxUtc = new Date(todayUtc);
+    maxUtc.setUTCDate(maxUtc.getUTCDate() + 14);
+    return dateUtc <= maxUtc;
+  };
 
   {/*Clearing the coordinates button function*/}
   const clearCoordinates = () => {
@@ -104,8 +126,24 @@ function App() {
 
     {/*User feedback. (Needto have at least soil or long/lat data.*/}
     if (hasValidCoordinates) {
+      const parsedForecastDate = parseForecastDate(forecastDateInput);
+      if (!parsedForecastDate) {
+        setResult("Error: Enter forecast date as MM/DD/YYYY.");
+        setLoading(false);
+        setRequestProgress(0);
+        setRequestStage("Invalid date format");
+        return;
+      }
+      if (!isForecastDateAllowed(parsedForecastDate)) {
+        setResult("Error: Date is too far ahead. Choose historical/today or up to 14 days into the future (UTC).");
+        setLoading(false);
+        setRequestProgress(0);
+        setRequestStage("Date out of bounds");
+        return;
+      }
       formData.append("lat", parsedLat);
       formData.append("lon", parsedLon);
+      formData.append("forecast_date", forecastDateInput.trim());
       setRequestProgress(25);
       setRequestStage("Coordinates queued. Waiting for GIS...");
     } else if (!file) {
@@ -148,6 +186,8 @@ function App() {
             {
               result: data.result,
               nlcd_percentages: data.nlcd_percentages,
+              weather_data: data.weather_data,
+              forecast_date_utc: data.forecast_date_utc,
             },
             null,
             2
@@ -177,13 +217,24 @@ function App() {
       <div className="hero-panel">
         <div className="hero-top-row">
           <p className="kicker">Field-Listeria Intelligence</p>
-          <button
-            type="button"
-            className="theme-toggle"
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-          >
-            {theme === "dark" ? "Light Mode" : "Dark Mode"}
-          </button>
+          <div className="hero-controls">
+            <button
+              type="button"
+              className="theme-toggle"
+              onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            >
+              {theme === "dark" ? "Light Mode" : "Dark Mode"}
+            </button>
+            <button
+              type="button"
+              className="help-toggle"
+              onClick={() => setShowHelpModal(true)}
+              aria-label="Open help"
+              title="Open help"
+            >
+              ?
+            </button>
+          </div>
         </div>
         {/* Here is where the Tool name and tool description is*/}
         <h1>Listeria Risk Tool</h1>
@@ -201,12 +252,95 @@ function App() {
         </p>
       </div>
 
+      {/* this section is the help button at the top right corner (main how to help) */}
+      {showHelpModal && (
+        <div className="help-modal-overlay" role="dialog" aria-modal="true" aria-label="Help instructions">
+          <div className="help-modal">
+            <button
+              type="button"
+              className="help-exit-btn"
+              onClick={() => setShowHelpModal(false)}
+              aria-label="Close help"
+              title="Close help"
+            >
+              &times;
+            </button>
+            <h3>Uploading and Entering Data and Running the Predictive Model / Risk Score</h3>
+            <p>To run the predictive model please do 1 of the following:</p>
+            <ul>
+              <li>
+                To run a soil-only model:
+                <ol>
+                  <li>Upload a CSV in the "Soil CSV Upload (optional)" Section</li>
+                  <li>
+                    In the "Model Mode (with or without soil/coordinates)" Section, click the dropdown and select
+                    "Soil Information Only".
+                  </li>
+                  <li>
+                    In "Model Type", select any of the options ("Gradient Boosted Model (Recommended and Best)",
+                    "Neural Network", or "SVM (Support Vector Machine)")
+                  </li>
+                </ol>
+              </li>
+              <li>
+                To run a model from longitude and latitude data only (weather and elevation data retrieved from an API automatically)
+                <ol>
+                  <li>
+                    Enter a date of interest (any time after 2010, and up to 14 days in the future) in the Month/Day/Year
+                    format (i.e. 02/14/2026). Please note the current day's data and future data will be retrieved through
+                    a forcasting model, and could be innacurate and affect model results.
+                  </li>
+                  <li>
+                    Select a point on the map or manually enter a coordinate using the "Choosing Coordinates" section.
+                    <ul>
+                      <li>
+                        To enter a point manually, press the "Manual Entry" button and input your longitude and latitude.
+                      </li>
+                      <li>
+                        To select a point on the map, press the "Map Pick" button and drag/zoom in as needed to select your
+                        location on a map. The selected coordinates will be displayed below the map.
+                      </li>
+                    </ul>
+                  </li>
+                  <li>
+                    In the "Model Mode (with or without soil/coordinates)" Section, click the dropdown and select
+                    "Latitude and Longitude Information Only".
+                  </li>
+                  <li>
+                    In "Model Type", select any of the options ("Gradient Boosted Model (Recommended and Best)", "Neural Network",
+                    or "SVM (Support Vector Machine)")
+                  </li>
+                </ol>
+              </li>
+              <li>
+                To run a model with both soil data and longitude/latitude data, please follow the instructions of the previous
+                two sections (add soil and longitude/latitude data)
+              </li>
+            </ul>
+            <p>
+              For more information on the soil data requirements, please select the help button, and/or dowload the CSVs provided.
+            </p>
+            <p>
+              For information on how to go from an excel file to a CSV file, please go to this website:{" "}
+              <a
+                href="https://support.microsoft.com/en-us/office/save-a-workbook-to-text-format-txt-or-csv-3e9a9d6c-70da-4255-aa28-fcacf1f081e6"
+                target="_blank"
+                rel="noreferrer"
+              >
+                https://support.microsoft.com/en-us/office/save-a-workbook-to-text-format-txt-or-csv-3e9a9d6c-70da-4255-aa28-fcacf1f081e6
+              </a>
+            </p>
+            <p>and in the specified area, please select the "CSV (comma delimited)" option.</p>
+          </div>
+        </div>
+      )}
+
       {/* Here is where the data inputs are*/}
       <div className="grid">
         <section className="card">
-          <h2>Data Input</h2>
+          <h2>Data Inputs</h2>
           {/*here is the csv upload section*/}
-          <label className="label">CSV Upload (optional)</label>
+          <label className="label">Soil CSV Upload (optional)</label>
           <div className="csv-upload-row">
             <input
               ref={fileInputRef}
@@ -249,11 +383,25 @@ function App() {
             </div>
           )}
 
+          
+          {/* Here is where the date information is uploaded */}
+          <label className="label">Date (MM/DD/YYYY, historical or max +14 days)</label>
+          <input
+            className="text-input"
+            type="text"
+            placeholder="MM/DD/YYYY"
+            inputMode="numeric"
+            pattern="\d{2}/\d{2}/\d{4}"
+            value={forecastDateInput}
+            onChange={(e) => setForecastDateInput(e.target.value)}
+          />
+          <p className="hint">Required for coordinate-based runs. Supports historical dates (after 2010) and up to 14 days ahead (UTC).</p>
+
           {/*here is the location entry option. There are three main buttons: 
           (1) a map where you can click the location you want
           (2) a manual entry option where you can 
           (3) a clear coordinate section (to clear the part where you entered a location on a map*/}
-          <label className="label">Location Entry</label>
+          <label className="label">Choosing Coordinates</label>
           <div className="toggle-row">
             <button
               type="button"
@@ -321,24 +469,26 @@ function App() {
             </div>
           )}
 
-          <div className="coord-readout">
+        {/* The little helper that automatically updates with long-lat selected. a cute little touch for user feedback. */}
+        <div className="coord-readout">
             <span>Latitude: {latInput || "--"}</span>
             <span>Longitude: {lonInput || "--"}</span>
           </div>
+
         </section>
 
         <section className="card">
           <h2>Model Control</h2>
-          <label className="label">Model Type</label>
+          <label className="label">Model Type (which model variant to use)</label>
           <select className="select-input" value={modelType} onChange={(e) => setModelType(e.target.value)}>
             <option value="prediction">Prediction Model</option>
             <option value="risk">Risk Model</option>
           </select>
 
-          <label className="label">Model Mode (with or without soil/coordinates)</label>
+          <label className="label">Model Mode (type of data you want to run the model on)</label>
           <select className="select-input" value={longlatMode} onChange={(e) => setLonglatMode(e.target.value)}>
-            <option value="with_longlat">Latitude and Longitude Included</option>
-            <option value="with_soil">Soil Information Only</option>
+            <option value="longlat_only">Latitude and Longitude Information Only</option>
+            <option value="soil_only">Soil Information Only</option>
             <option value="soil_longlat">Both Soil and Latitude Longitude Information</option>
           </select>
 

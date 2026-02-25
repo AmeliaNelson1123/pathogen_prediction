@@ -27,13 +27,13 @@
   --toggle-bg: #fff4e9;
   --toggle-border: rgba(128, 74, 35, 0.35);
   --toggle-text: #5f3521;
-  --chip-active-bg: #f56a1d;
-  --chip-active-border: #dc560e;
+  --chip-active-bg: #e79a78;
+  --chip-active-border: #d28363;
   --chip-active-text: #fff8f3;
   --chip-clear-bg: #fef0e4;
-  --run-bg-start: #f06a1c;
-  --run-bg-end: #db8e35;
-  --run-shadow: rgba(195, 105, 37, 0.28);
+  --run-bg-start: #e68a67;
+  --run-bg-end: #eca58c;
+  --run-shadow: rgba(183, 95, 58, 0.26);
   width: min(1120px, 100%);
   margin: 0 auto;
   display: grid;
@@ -54,8 +54,15 @@
 .hero-top-row {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.8rem;
+}
+
+.hero-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.45rem;
 }
 
 .kicker {
@@ -88,6 +95,81 @@
   border-radius: 999px;
   padding: 0.35rem 0.75rem;
   font-weight: 700;
+  cursor: pointer;
+}
+
+.help-toggle {
+  border: 1px solid var(--toggle-border);
+  background: var(--toggle-bg);
+  color: var(--toggle-text);
+  width: 2.2rem;
+  min-width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 999px;
+  padding: 0;
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.help-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(12, 12, 12, 0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1200;
+  padding: 1rem;
+}
+
+.help-modal {
+  width: min(860px, 100%);
+  max-height: 84vh;
+  overflow-y: auto;
+  background: var(--field-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 1rem;
+  box-shadow: 0 14px 30px var(--hero-shadow);
+  color: var(--text-strong);
+  padding: 1rem;
+}
+
+.help-modal h3 {
+  margin: 0 0 0.65rem;
+}
+
+.help-modal p {
+  margin: 0.6rem 0;
+  color: var(--text-body);
+}
+
+.help-modal ul,
+.help-modal ol {
+  margin: 0.35rem 0 0.6rem 1.2rem;
+  color: var(--text-body);
+}
+
+.help-exit-btn {
+  float: right;
+  border: 1px solid var(--toggle-border);
+  background: var(--toggle-bg);
+  color: var(--toggle-text);
+  width: 2.2rem;
+  min-width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 999px;
+  padding: 0;
+  font-weight: 700;
+  font-size: 1.2rem;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
 }
 
