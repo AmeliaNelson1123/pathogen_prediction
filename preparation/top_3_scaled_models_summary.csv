@@ -1,0 +1,4 @@
+Model Used,Scaler Status,Accuracy,Precision,Recall,F1-Score,ROC AUC,PR AUC,Layers,Neurons,Batch_Size,Epochs,Learning_Rate,N_Estimators,C_Val,Kernel
+neural net,standard_scalar,0.9051,0.9315,0.8947,0.9128,0.9474,0.9611,4.0,128.0,64.0,20.0,,,,
+gbm,standard_scalar,0.8759,0.9155,0.8553,0.8844,0.9439,0.9564,,,,,0.2,800.0,,
+svm,standard_scalar,0.8686,0.8718,0.8947,0.8831,0.9316,0.9570,,,,,,,4.0,rbf
