@@ -53,8 +53,12 @@ function App() {
   const [latInput, setLatInput] = useState("");
   const [lonInput, setLonInput] = useState("");
   const [forecastDateInput, setForecastDateInput] = useState("");
-  const [modelType, setModelType] = useState("prediction");
+  const [modelType, setModelType] = useState("gbm");
   const [longlatMode, setLonglatMode] = useState("longlat_only");
+  const [irrigationMode, setIrrigationMode] = useState("none");
+  const [wildlifeMode, setWildlifeMode] = useState("none");
+  const [manureMode, setManureMode] = useState("none");
+  const [bufferZoneMode, setBufferZoneMode] = useState("none");
   const [file, setFile] = useState(null);
   const [result, setResult] = useState("");
   const [loading, setLoading] = useState(false);
@@ -125,7 +129,16 @@ function App() {
     if (file) formData.append("file", file);
 
     {/*User feedback. (Needto have at least soil or long/lat data.*/}
-    if (hasValidCoordinates) {
+    const requiresCoordinates = longlatMode !== "soil_only";
+    if (requiresCoordinates) {
+      if (!hasValidCoordinates) {
+        setResult("Error: This model mode requires valid latitude and longitude.");
+        setLoading(false);
+        setRequestProgress(0);
+        setRequestStage("Missing coordinates");
+        return;
+      }
+
       const parsedForecastDate = parseForecastDate(forecastDateInput);
       if (!parsedForecastDate) {
         setResult("Error: Enter forecast date as MM/DD/YYYY.");
@@ -147,16 +160,20 @@ function App() {
       setRequestProgress(25);
       setRequestStage("Coordinates queued. Waiting for GIS...");
     } else if (!file) {
-      setResult("Error: Add a CSV and/or enter valid latitude and longitude.");
+      setResult("Error: Soil-only mode requires a CSV upload.");
       setLoading(false);
       setRequestProgress(0);
-      setRequestStage("Idle");
+      setRequestStage("Missing CSV");
       return;
     }
 
     {/*inputting the data to push to the backend*/}
     formData.append("model_type", modelType);
     formData.append("longlat_mode", longlatMode);
+    formData.append("irrigation_mode", irrigationMode);
+    formData.append("wildlife_mode", wildlifeMode);
+    formData.append("manure_mode", manureMode);
+    formData.append("buffer_zone_mode", bufferZoneMode);
 
     try {
       {/*Connection to backend*/}
@@ -185,9 +202,19 @@ function App() {
           JSON.stringify(
             {
               result: data.result,
+              model_type: data.model_type,
               nlcd_percentages: data.nlcd_percentages,
               weather_data: data.weather_data,
               forecast_date_utc: data.forecast_date_utc,
+              irrigation_mode: data.irrigation_mode,
+              wildlife_mode: data.wildlife_mode,
+              manure_mode: data.manure_mode,
+              buffer_zone_mode: data.buffer_zone_mode,
+              probability_presence_base: data.probability_presence_base,
+              probability_presence_adjusted: data.probability_presence_adjusted,
+              to_return_risk_class: data.to_return_risk_class,
+              displayed_result: data.displayed_result,
+              add_message: data.add_message,
             },
             null,
             2
@@ -481,8 +508,9 @@ function App() {
           <h2>Model Control</h2>
           <label className="label">Model Type (which model variant to use)</label>
           <select className="select-input" value={modelType} onChange={(e) => setModelType(e.target.value)}>
-            <option value="prediction">Prediction Model</option>
-            <option value="risk">Risk Model</option>
+            <option value="gbm">Gradient Boosted Model (Recommended and Best Performance)</option>
+            <option value="neural_net">Neural Network (Takes a long time, but comparable model performance to the Gradient Boosted Model)</option>
+            <option value="svm">Support Vector Machine Model (Lowest accuracy performance, but still comparable to the Gradient Boosted Model)</option>
           </select>
 
           <label className="label">Model Mode (type of data you want to run the model on)</label>
@@ -490,6 +518,39 @@ function App() {
             <option value="longlat_only">Latitude and Longitude Information Only</option>
             <option value="soil_only">Soil Information Only</option>
             <option value="soil_longlat">Both Soil and Latitude Longitude Information</option>
+          </select>
+
+          <label className="label">Irrigation (optional)</label>
+          <select className="select-input" value={irrigationMode} onChange={(e) => setIrrigationMode(e.target.value)}>
+            <option value="none">No selection</option>
+            <option value="24_rain_window">24 hours since last rain/irrigation</option>
+            <option value="48_rain_window">48 hours since last rain/irrigation</option>
+            <option value="72_rain_window">72 hours since last rain/irrigation</option>
+            <option value="144_rain_window">144+ hours since last rain/irrigation</option>
+          </select>
+
+          <label className="label">Wildlife Traffic (optional)</label>
+          <select className="select-input" value={wildlifeMode} onChange={(e) => setWildlifeMode(e.target.value)}>
+            <option value="none">No selection</option>
+            <option value="no_risk_wildlife">No wildlife seen in field</option>
+            <option value="low_risk_wildlife">Wildlife seen 8-30 days ago</option>
+            <option value="moderate_risk_wildlife">Wildlife seen 4-7 days ago</option>
+            <option value="high_risk_wildlife">Wildlife seen within last 3 days</option>
+          </select>
+
+          <label className="label">Manure (optional)</label>
+          <select className="select-input" value={manureMode} onChange={(e) => setManureMode(e.target.value)}>
+            <option value="none">No selection</option>
+            <option value="no_manure">Manure never spread on field</option>
+            <option value="manure_over_365_days">Manure spread over 365 days before harvest</option>
+            <option value="manure_within_365_days">Manure spread within 365 days of harvest</option>
+          </select>
+
+          <label className="label">Buffer Zone (optional)</label>
+          <select className="select-input" value={bufferZoneMode} onChange={(e) => setBufferZoneMode(e.target.value)}>
+            <option value="none">No selection</option>
+            <option value="no_buffer_zone">No buffer zone</option>
+            <option value="buffer_zone">Buffer zone present</option>
           </select>
 
           {/*some user feedback*/}

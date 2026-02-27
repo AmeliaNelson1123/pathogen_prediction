@@ -10,7 +10,7 @@ Amelia Nelson (aln65@cornell.edu)
 # Last Edit Date:
 02/20/2026
 
-## Goal:
+# Goal:
 The intention of this project is to develop a decsion support tool for farmers and growers to identify the risk of Listeria Presense.
 
 ## Problem Statement:
@@ -33,7 +33,8 @@ The intention of this project is to develop a decsion support tool for farmers a
 
 ## Installation Instructions:
 
-### Python version: 3.10
+### Python version: 3.10 to 3.13
+### Node.js required 
 ### Requred dependencies are listed in requirements.txt, and differ for the website application vs the model preparation and analysis
 ### RAM requirements: suggusted to have at least 16 GB of RAM available for running models
 

@@ -1,14 +1,14 @@
 /* Global palette!!! and sizing tokens used by all the bubbles/cards */
 /* App shell wrapper around all bubbles */
 .app-shell {
-  --hero-bg: linear-gradient(115deg, rgba(255, 255, 255, 0.84), rgba(247, 232, 215, 0.88));
+  --hero-bg: linear-gradient(115deg, rgba(255, 255, 255, 0.96), rgba(247, 232, 215, 0.97));
   --hero-border: rgba(125, 67, 27, 0.2);
   --hero-shadow: rgba(124, 75, 37, 0.12);
   --text-strong: #3e2214;
   --text-body: #573627;
   --label: #5b3a28;
   --kicker: #7f3b14;
-  --card-bg: rgba(255, 255, 255, 0.84);
+  --card-bg: rgba(255, 255, 255, 0.97);
   --card-border: rgba(136, 79, 37, 0.18);
   --card-shadow: rgba(121, 66, 31, 0.08);
   --field-bg: #fff9f4;
@@ -182,7 +182,6 @@
 
 .card {
   background: var(--card-bg);
-  backdrop-filter: blur(3px);
   border: 1px solid var(--card-border);
   border-radius: 1rem;
   padding: 1rem;
@@ -442,14 +441,14 @@
 
 /* Dark mode palette overrides for every bubble/control */
 .app-shell.theme-dark {
-  --hero-bg: linear-gradient(115deg, rgba(34, 52, 58, 0.9), rgba(29, 41, 47, 0.92));
+  --hero-bg: linear-gradient(115deg, rgba(34, 52, 58, 0.97), rgba(29, 41, 47, 0.97));
   --hero-border: rgba(124, 170, 174, 0.28);
   --hero-shadow: rgba(0, 0, 0, 0.33);
   --text-strong: #d8edf0;
   --text-body: #aac4c7;
   --label: #aac4c7;
   --kicker: #8eb9d8;
-  --card-bg: rgba(35, 47, 53, 0.86);
+  --card-bg: rgba(35, 47, 53, 0.97);
   --card-border: rgba(133, 173, 176, 0.24);
   --card-shadow: rgba(0, 0, 0, 0.28);
   --field-bg: rgba(24, 33, 38, 0.96);
