@@ -10,7 +10,7 @@ Amelia Nelson (aln65@cornell.edu)
 # Last Edit Date:
 02/20/2026
 
-## Goal:
+# Goal:
 The intention of this project is to develop a decsion support tool for farmers and growers to identify the risk of Listeria Presense.
 
 ## Problem Statement:
@@ -33,7 +33,8 @@ The intention of this project is to develop a decsion support tool for farmers a
 
 ## Installation Instructions:
 
-### Python version: 3.10
+### Python version: 3.10 to 3.13
+### Node.js is only required for maintainers to rebuild the frontend. End users can run with Python only.
 ### Requred dependencies are listed in requirements.txt, and differ for the website application vs the model preparation and analysis
 ### RAM requirements: suggusted to have at least 16 GB of RAM available for running models
 
@@ -47,31 +48,59 @@ Optional
 pip install -r requirements.txt
 ```
 
-### To Run Website Interface
-Create 2 powershel terminals:
-Ensure both terminals are in the *pathogen_prediction/* folder cloned in from the website
+### To Run Website Interface (Python-only)
+Try python 3.10, 3.11, or 3.13 if the website is not loading or the requirements did not download correctly.
 
-1 terminal will be designated as the backend, and one terminal will be designated as the frontend
 
-### Backend terminal
+In your terminal, from project root:
 ``` bash
-cd website/backend
-py -3.10 -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python --version
-python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
-python -m uvicorn main:app --reload
+py -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r website/backend/requirements.txt
+.\.venv\Scripts\python.exe -m uvicorn website.backend.main:app --host 127.0.0.1 --port 8000
+
 ``` 
 
-### Frontend terminal
+
+Then open the website at:
+
 ``` bash
-cd website/frontend/farm-app
-npm install
-npm run dev
+http://127.0.0.1:8000
 ```
 
-Once the backend, then frontend have started, click the http link in your terminal to open the webapp.
+The same FastAPI process serves both the API and the prebuilt frontend.
+
+### Maintainer Step: Rebuild Frontend (Node.js only, not needed by end users)
+If you changed frontend code, rebuild before committing:
+
+``` bash
+cd website/frontend/farm-app
+npm ci
+npm run build
+```
+
+This updates `website/frontend/farm-app/dist`, which is served by FastAPI.
+
+### Uploading and Entering Data and Running the Predictive Model / Risk Score
+To run the predictive model please do 1 of the following:
+- To run a soil-only model: 
+    1) Upload a CSV in the "Soil CSV Upload (optional)" Section
+    2) In the "Model Mode (with or without soil/coordinates)" Section, click the dropdown and select "Soil Information Only". 
+    3) In "Model Type", select any of the options ("Gradient Boosted Model (Recommended and Best)", "Neural Network", or "SVM (Support Vector Machine)")
+- To run a model from longitude and latitude data only (weather and elevation data retrieved from an API automatically)
+    1) Enter a date of interest (any time after 2010, and up to 14 days in the future) in the Month/Day/Year format (i.e. 02/14/2026). Please note the current day's data and future data will be retrieved through a forcasting model, and could be innacurate and affect model results.
+    2) Select a point on the map or manually enter a coordinate using the "Choosing Coordinates" section.
+        - To enter a point manually, press the "Manual Entry" button and input your longitude and latitude.
+        - To select a point on the map, press the "Map Pick" button and drag/zoom in as needed to select your location on a map. The selected coordinates will be displayed below the map.
+    3) In the "Model Mode (with or without soil/coordinates)" Section, click the dropdown and select "Latitude and Longitude Information Only". 
+    4) In "Model Type", select any of the options ("Gradient Boosted Model (Recommended and Best)", "Neural Network", or "SVM (Support Vector Machine)")
+- To run a model with both soil data and longitude/latitude data, please follow the instructions of the previous two sections (add soil *and* longitude/latitude data)
+
+For more information on the soil data requirements, please select the help button, and/or dowload the CSVs provided. 
+
+For information on how to go from an excel file to a CSV file, please go to this website: https://support.microsoft.com/en-us/office/save-a-workbook-to-text-format-txt-or-csv-3e9a9d6c-70da-4255-aa28-fcacf1f081e6
+
+and in the specified area, please select the "CSV (comma delimited)" option.
+
 
 
 ### To Run Exploratory Data Analysis:

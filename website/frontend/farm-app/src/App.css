@@ -1,14 +1,14 @@
 /* Global palette!!! and sizing tokens used by all the bubbles/cards */
 /* App shell wrapper around all bubbles */
 .app-shell {
-  --hero-bg: linear-gradient(115deg, rgba(255, 255, 255, 0.84), rgba(247, 232, 215, 0.88));
+  --hero-bg: linear-gradient(115deg, rgba(255, 255, 255, 0.96), rgba(247, 232, 215, 0.97));
   --hero-border: rgba(125, 67, 27, 0.2);
   --hero-shadow: rgba(124, 75, 37, 0.12);
   --text-strong: #3e2214;
   --text-body: #573627;
   --label: #5b3a28;
   --kicker: #7f3b14;
-  --card-bg: rgba(255, 255, 255, 0.84);
+  --card-bg: rgba(255, 255, 255, 0.97);
   --card-border: rgba(136, 79, 37, 0.18);
   --card-shadow: rgba(121, 66, 31, 0.08);
   --field-bg: #fff9f4;
@@ -27,13 +27,13 @@
   --toggle-bg: #fff4e9;
   --toggle-border: rgba(128, 74, 35, 0.35);
   --toggle-text: #5f3521;
-  --chip-active-bg: #f56a1d;
-  --chip-active-border: #dc560e;
+  --chip-active-bg: #e79a78;
+  --chip-active-border: #d28363;
   --chip-active-text: #fff8f3;
   --chip-clear-bg: #fef0e4;
-  --run-bg-start: #f06a1c;
-  --run-bg-end: #db8e35;
-  --run-shadow: rgba(195, 105, 37, 0.28);
+  --run-bg-start: #e68a67;
+  --run-bg-end: #eca58c;
+  --run-shadow: rgba(183, 95, 58, 0.26);
   width: min(1120px, 100%);
   margin: 0 auto;
   display: grid;
@@ -54,8 +54,15 @@
 .hero-top-row {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: flex-start;
   gap: 0.8rem;
+}
+
+.hero-controls {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.45rem;
 }
 
 .kicker {
@@ -77,8 +84,31 @@
 
 .hero-copy {
   margin: 0.7rem 0 0;
-  max-width: 70ch;
+  width: 100%;
+  max-width: min(100%, 105ch);
   color: var(--text-body);
+}
+
+.hero-copy p {
+  margin: 0.6rem 0;
+  line-height: 1.45;
+}
+
+.hero-copy ul {
+  margin: 0.25rem 0 0.8rem 1.35rem;
+  padding: 0;
+}
+
+.hero-copy li {
+  margin: 0.2rem 0;
+  line-height: 1.4;
+}
+
+.how-to-title {
+  margin-top: 0.95rem;
+  font-size: 1.08rem;
+  font-weight: 700;
+  color: var(--text-strong);
 }
 
 .theme-toggle {
@@ -91,6 +121,81 @@
   cursor: pointer;
 }
 
+.help-toggle {
+  border: 1px solid var(--toggle-border);
+  background: var(--toggle-bg);
+  color: var(--toggle-text);
+  width: 2.2rem;
+  min-width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 999px;
+  padding: 0;
+  font-weight: 700;
+  font-size: 1rem;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.help-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(12, 12, 12, 0.72);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1200;
+  padding: 1rem;
+}
+
+.help-modal {
+  width: min(860px, 100%);
+  max-height: 84vh;
+  overflow-y: auto;
+  background: var(--field-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 1rem;
+  box-shadow: 0 14px 30px var(--hero-shadow);
+  color: var(--text-strong);
+  padding: 1rem;
+}
+
+.help-modal h3 {
+  margin: 0 0 0.65rem;
+}
+
+.help-modal p {
+  margin: 0.6rem 0;
+  color: var(--text-body);
+}
+
+.help-modal ul,
+.help-modal ol {
+  margin: 0.35rem 0 0.6rem 1.2rem;
+  color: var(--text-body);
+}
+
+.help-exit-btn {
+  float: right;
+  border: 1px solid var(--toggle-border);
+  background: var(--toggle-bg);
+  color: var(--toggle-text);
+  width: 2.2rem;
+  min-width: 2.2rem;
+  height: 2.2rem;
+  border-radius: 999px;
+  padding: 0;
+  font-weight: 700;
+  font-size: 1.2rem;
+  line-height: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
 /* Two-bubble layout: left = Data Input, right = Model Control */
 .grid {
   display: grid;
@@ -100,7 +205,6 @@
 
 .card {
   background: var(--card-bg);
-  backdrop-filter: blur(3px);
   border: 1px solid var(--card-border);
   border-radius: 1rem;
   padding: 1rem;
@@ -356,18 +460,19 @@
 .result-box p {
   margin: 0;
   color: var(--result-text);
+  white-space: pre-wrap;
 }
 
 /* Dark mode palette overrides for every bubble/control */
 .app-shell.theme-dark {
-  --hero-bg: linear-gradient(115deg, rgba(34, 52, 58, 0.9), rgba(29, 41, 47, 0.92));
+  --hero-bg: linear-gradient(115deg, rgba(34, 52, 58, 0.97), rgba(29, 41, 47, 0.97));
   --hero-border: rgba(124, 170, 174, 0.28);
   --hero-shadow: rgba(0, 0, 0, 0.33);
   --text-strong: #d8edf0;
   --text-body: #aac4c7;
   --label: #aac4c7;
   --kicker: #8eb9d8;
-  --card-bg: rgba(35, 47, 53, 0.86);
+  --card-bg: rgba(35, 47, 53, 0.97);
   --card-border: rgba(133, 173, 176, 0.24);
   --card-shadow: rgba(0, 0, 0, 0.28);
   --field-bg: rgba(24, 33, 38, 0.96);

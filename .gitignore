@@ -7,6 +7,7 @@ ENV/
 # Any nested venv folders
 **/.venv/
 **/venv/
+**/.venv310/
 website/backend/.venv/
 
 # ignoring all pycache for the website
@@ -15,4 +16,3 @@ __pycache__
 # sometimes created when website created
 package-lock.json
 **/package-lock.json
-**/package.json
