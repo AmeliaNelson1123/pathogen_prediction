@@ -181,7 +181,7 @@ In your terminal, from project root:
 cd website
 py -m venv .venv
 .venv\Scripts\Activate.ps1
-pip install -r website/backend/requirements.txt
+pip install -r website/requirements.txt
 uvicorn website.backend.main:app --host 127.0.0.1 --port 8000
 
 ``` 
@@ -190,7 +190,7 @@ For mac users:
 cd website
 py -m venv .venv
 source .venv/bin/activate
-pip install -r website/backend/requirements.txt
+pip install -r website//requirements.txt
 uvicorn website.backend.main:app --host 127.0.0.1 --port 8000
 ```
 
