@@ -2,24 +2,27 @@
 Project For: IAFP Student Competition
 
 ## Authors:
-YeonJin Jung (yj354@cornell.edu)
-Leonie Kemmerling (lk483@cornell.edu)
-Linda Kalunga (lk549@cornell.edu)
-Amelia Nelson (aln65@cornell.edu)
+- YeonJin Jung (yj354@cornell.edu)
+- Leonie Kemmerling (lk483@cornell.edu)
+- Linda Kalunga (lk549@cornell.edu)
+- Amelia Nelson (aln65@cornell.edu)
 
 # Last Edit Date:
-02/20/2026
+02/27/2026
 
 # Goal:
-The intention of this project is to develop a decsion support tool for farmers and growers to identify the risk of Listeria Presense.
+Development of a decision support tool for farmers to identify Listeria risk in soil
 
-## Problem Statement:
-- what does this enable
-- what is missing
-- why is this important
-- why is this novel
+## Problem Description:
+Soil serves as an environmental reservoir for Listeria spp., including pathogenic strains such as Listeria monocytogenes, which can contaminate fresh produce via preharvest routes, such as irrigation runoff, animal intrusion, and rain splash ​(2, 3)​. Produce growers have been facing the need to implement proactive risk management, particularly under frameworks such as the Food Safety Modernization Act (FSMA). However, current soil testing strategies are (i) largely reactive rather than predictive, (ii) resource intensive, and (iii) lack standard guidance ​(1, 4)​. While growers often collect data on soil properties (e.g., pH, nutrients, organic matter, these data are not routinely leveraged to assess microbial risk. Therefore, a data-driven approach that integrates these data to predict Listeria presence would allow for (i) risk-based soil sampling, (ii) development of targeted interventions, and (iii) efficient allocation of resources for testing. 
+
+## Objectives:
+The objectives of this project are to (i) develop predictive models for Listeria presence in soil, (ii) identify environmental drivers of Listeria risk, (iii) evaluate model robustness and generalizability, and (iv) develop a grower-friendly decision-support tool. 
+
 
 ## Workflow Diagram and Features
+![Workflow Diagram](docs/images/workflow-diagram.png)
+
 ### Training
 - Listeria data was analyzed using an Exploratory Data Analysis (listeria_eda.ipynb)
 - 6 models were tested to evaluate predictive ability to identify Listeria spp. presense (Run_Models_and_Analyze.ipynb OR run_models_basic.py)
@@ -34,7 +37,7 @@ The intention of this project is to develop a decsion support tool for farmers a
 ## Installation Instructions:
 
 ### Python version: 3.10 to 3.13
-### Node.js is only required for maintainers to rebuild the frontend. End users can run with Python only.
+### Node.js required 
 ### Requred dependencies are listed in requirements.txt, and differ for the website application vs the model preparation and analysis
 ### RAM requirements: suggusted to have at least 16 GB of RAM available for running models
 
@@ -48,7 +51,7 @@ Optional
 pip install -r requirements.txt
 ```
 
-### To Run Website Interface (Python-only)
+### To Run Website Interface
 Try python 3.10, 3.11, or 3.13 if the website is not loading or the requirements did not download correctly.
 
 
@@ -61,24 +64,7 @@ py -m venv .venv
 ``` 
 
 
-Then open the website at:
-
-``` bash
-http://127.0.0.1:8000
-```
-
-The same FastAPI process serves both the API and the prebuilt frontend.
-
-### Maintainer Step: Rebuild Frontend (Node.js only, not needed by end users)
-If you changed frontend code, rebuild before committing:
-
-``` bash
-cd website/frontend/farm-app
-npm ci
-npm run build
-```
-
-This updates `website/frontend/farm-app/dist`, which is served by FastAPI.
+Click the http link in your terminal to open the webapp, or just type in http://127.0.0.1:8000 to your browser.
 
 ### Uploading and Entering Data and Running the Predictive Model / Risk Score
 To run the predictive model please do 1 of the following:
@@ -114,6 +100,10 @@ Open preparation\Run_Models_and_Analyze.ipynb, and run all cells with a python 3
 ## Repository Structure:
 /data -> Raw and processed data
 /website -> website interface
+/website/backend/main.py -> the api calls, models, and risk adjustments
+/website/backend/models/ -> where the models are saved
+/website/frontend/farm-app/src/ -> how the model looks and interacts with the backend
+/website/frontend/farm-app/public/ -> the soil example files and any pngs displayed in the website
 /preparation -> exploratory data analysis and model selection files
 
 
@@ -123,7 +113,7 @@ Random Seed, test size, model results, and context was documented throughout our
 We recognize that API calls, package deployments (as listed in the requirements), and more will change over time, but we hope to diminish the amount of change as much as possble by keeping our work as reproducible as possible.
 
 ## Design Decisions:
-We chose to keep our preliminary work on evaluating the data (listeria_eda.ipynb) and the model selection (Run_Models_and_Analyze.ipynb) within our repository to show context to our decisions and show our process for the IAFP Student Competition Hackathon. 
+We chose to keep our preliminary work on evaluating the data (listeria_eda.ipynb) and the model selection (Run_Models_and_Analyze.ipynb) within our repository to show context to our decisions and show our process for the IAFP Student Competition Hackathon. The process saves the models selected with the file saving_selected_models_for_pipeline.py.
 
 ## Citations, Thanks, and Recognitions
 Data was provided by:
