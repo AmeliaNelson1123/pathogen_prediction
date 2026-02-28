@@ -34,9 +34,121 @@ The objectives of this project are to
 
 ### Training
 - Listeria data was analyzed using an Exploratory Data Analysis (listeria_eda.ipynb)
-- 6 models were tested to evaluate predictive ability to identify Listeria spp. presense (Run_Models_and_Analyze.ipynb OR run_models_basic.py)
+- 6 models were tested to evaluate predictive ability to identify Listeria spp. presense (Run_Models_and_Analyze.ipynb OR run_models_basic.py). To see a table on the top model performance for each model, see table 1.
 - The top 3 models were selected and optimized by hyperparameters and data engineering. Data engineering was done through feature selection, log transformations, and more (listeria_eda.ipynb and Run_Models_and_Analyze.ipynb). 
 - Feature Selection was done through literature reviews, expert insight, and permuntation and feature importance looked at through model results and PCA transformations (listeria_eda.ipynb and Run_Models_and_Analyze.ipynb).
+
+### Table 1: Performance metrics for the BEST model of each type (sorted by accuracy):
+| model used | scalar_status | accuracy |
+|---|---|---|
+| Row 1, Col 1 | Row 1, Col 2 | Row 1, Col 3 |
+| Row 2, Col 1 | Row 2, Col 2 | Row 2, Col 3 |
+
+
+
+precision
+recall
+f1
+636
+gbm
+standard_scalar
+0.941606
+0.959459
+0.934211
+0.946667
+645
+gbm
+orig
+0.934307
+0.946667
+0.934211
+0.940397
+166
+neural net
+standard_scalar
+0.905109
+0.956522
+0.868421
+0.910345
+617
+svm
+standard_scalar
+0.890511
+0.896104
+0.907895
+0.901961
+547
+decision_tree
+orig
+0.883212
+0.905405
+0.881579
+0.893333
+520
+decision_tree
+standard_scalar
+0.868613
+0.881579
+0.881579
+0.881579
+588
+random_forest
+orig
+0.861314
+0.880000
+0.868421
+0.874172
+561
+random_forest
+standard_scalar
+0.861314
+0.880000
+0.868421
+0.874172
+4
+logistic regression
+standard_scalar
+0.846715
+0.857143
+0.868421
+0.862745
+501
+knn
+standard_scalar
+0.839416
+0.875000
+0.828947
+0.851351
+515
+knn
+orig
+0.810219
+0.847222
+0.802632
+0.824324
+393
+neural net
+orig
+0.715328
+0.753425
+0.723684
+0.738255
+10
+logistic regression
+orig
+0.656934
+0.716418
+0.631579
+0.671329
+619
+svm
+orig
+0.627737
+0.676056
+0.631579
+0.653061
+
+
 ### Deployment
 - Risk catagories were developed through literature review and expert opinion.
 - Decision support tools were then deployed in the form of a website.
@@ -65,13 +177,25 @@ Try python 3.10, 3.11, or 3.13 if the website is not loading or the requirements
 
 
 In your terminal, from project root:
-``` bash
+``` bash (powershell)
+cd website
 py -m venv .venv
-.\.venv\Scripts\python.exe -m pip install -r website/backend/requirements.txt
-.\.venv\Scripts\python.exe -m uvicorn website.backend.main:app --host 127.0.0.1 --port 8000
+.venv\Scripts\Activate.ps1
+pip install -r website/backend/requirements.txt
+uvicorn website.backend.main:app --host 127.0.0.1 --port 8000
 
 ``` 
+For mac users:
+``` bash (zsh)
+cd website
+py -m venv .venv
+.venv\Scripts\Activate.ps1
+pip install -r website/backend/requirements.txt
+uvicorn website.backend.main:app --host 127.0.0.1 --port 8000
+```
 
+For troubleshooting, or if you have multiple python versions, run python3 --version, or python --version instead of py, and check your version. Then, use the corresponding py, python, python3 -<version> instead of py.
+For example, if python3 --version outputs python3.13, then use python3 -m venv .venv
 
 Click the http link in your terminal to open the webapp, or just type in http://127.0.0.1:8000 to your browser.
 
