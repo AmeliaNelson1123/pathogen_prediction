@@ -26,11 +26,11 @@ const REQUIRED_CSV_COLUMNS_WITH_LONLAT = [
 ];
 
 const EXAMPLE_SOIL_FILES = [
-  { label: "Sample 1", href: "/examples/Example-1-soil.csv" },
-  { label: "Sample 2", href: "/examples/example-2-soil.csv" },
-  { label: "Sample 3", href: "/examples/example-3-soil.csv" },
-  { label: "Sample 4", href: "/examples/example-4-soil.csv" },
-  { label: "Sample 5", href: "/examples/example-5-soil.csv" },
+  { label: "Example 1", href: "/examples/Example-1-soil.csv" },
+  { label: "Example 2", href: "/examples/example-2-soil.csv" },
+  { label: "Example 3", href: "/examples/example-3-soil.csv" },
+  { label: "Example 4", href: "/examples/example-4-soil.csv" },
+  { label: "Example 5", href: "/examples/example-5-soil.csv" },
   // { label: "Sample 6", href: "/examples/example-6-soil.csv" },
   // { label: "Sample 7", href: "/examples/example-7-soil.csv" },
 ];
@@ -257,46 +257,51 @@ function App() {
         {/* Here is where the Tool name and tool description is*/}
         <h1>Listeria Risk Tool</h1>
         <div className="hero-copy">
-          <p>
-            Soil serves as an environmental reservoir for Listeria spp., including pathogenic strains such as
-            Listeria monocytogenes, which can contaminate fresh produce via preharvest routes such as irrigation
-            runoff, animal intrusion, and rain splash.
-          </p>
-          <p>
-            Produce growers have been facing the need to implement proactive risk management, particularly under
-            frameworks such as the Food Safety Modernization Act (FSMA). However, current soil testing strategies are:
-          </p>
-          <ul>
-            <li>largely reactive rather than predictive,</li>
-            <li>resource intensive, and</li>
-            <li>lack standard guidance.</li>
-          </ul>
-          <p>
-            While growers often collect data on soil properties (e.g., pH, nutrients, organic matter), these data are
-            not routinely leveraged to assess microbial risk. A data-driven approach that integrates these data to
-            predict Listeria presence would allow for:
-          </p>
-          <ul>
-            <li>risk-based soil sampling,</li>
-            <li>development of targeted interventions, and</li>
-            <li>efficient allocation of resources for testing.</li>
-          </ul>
+          <details className="hero-collapsible" open>
+            <summary className="how-to-title">Purpose</summary>
+            <p>
+              Soil serves as an environmental reservoir for Listeria spp., including pathogenic strains such as
+              Listeria monocytogenes, which can contaminate fresh produce via preharvest routes such as irrigation
+              runoff, animal intrusion, and rain splash.
+            </p>
+            <p>
+              Produce growers have been facing the need to implement proactive risk management, particularly under
+              frameworks such as the Food Safety Modernization Act (FSMA). However, current soil testing strategies are:
+            </p>
+            <ul>
+              <li>largely reactive rather than predictive,</li>
+              <li>resource intensive, and</li>
+              <li>lack standard guidance.</li>
+            </ul>
+            <p>
+              While growers often collect data on soil properties (e.g., pH, nutrients, organic matter), these data are
+              not routinely leveraged to assess microbial risk. A data-driven approach that integrates these data to
+              predict Listeria presence would allow for:
+            </p>
+            <ul>
+              <li>risk-based soil sampling,</li>
+              <li>development of targeted interventions, and</li>
+              <li>efficient allocation of resources for testing.</li>
+            </ul>
+          </details>
 
-          <p className="how-to-title">How to Use</p>
-          <p>
-            Upload a field dataset and/or set a location to score pathogen risk. Then choose a type of prediction
-            model. The selected date should be the date relative to the Listeria risk.
-          </p>
-          <p>
-            For the best results, include both a coordinate selection and soil test results, and select a category
-            for each optional dropdown.
-          </p>
-          <p>
-            If you do not have soil results yet and want help deciding whether soil testing would help identify
-            Listeria risk, select the prediction model and run it using longitude and latitude only. If you have
-            moderate or high risk, we recommend soil testing.
-          </p>
-          <p>Soil testing does not have to be on the date listed and can be from previous soil tests.</p>
+          <details className="hero-collapsible" open>
+            <summary className="how-to-title">How to Use</summary>
+            <p>
+              Upload a field dataset and/or set a location to score pathogen risk. Then choose a type of prediction
+              model. The selected date should be the date relative to the Listeria risk.
+            </p>
+            <p>
+              For the best results, include both a coordinate selection and soil test results, and select a category
+              for each optional dropdown.
+            </p>
+            <p>
+              If you do not have soil results yet and want help deciding whether soil testing would help identify
+              Listeria risk, select the prediction model and run it using longitude and latitude only. If you have
+              moderate or high risk, we recommend soil testing.
+            </p>
+            <p>Soil testing does not have to be on the date listed and can be from previous soil tests.</p>
+          </details>
         </div>
       </div>
 
@@ -433,7 +438,7 @@ function App() {
 
           
           {/* Here is where the date information is uploaded */}
-          <label className="label">Date (MM/DD/YYYY, historical or max +14 days)</label>
+          <label className="label">Date (MM/DD/YYYY, historical or up to 14 days in the future)</label>
           <input
             className="text-input"
             type="text"
@@ -582,7 +587,7 @@ function App() {
           </button>
           <div className="progress-meta">
             <span>Status: {requestStage}</span>
-            <span>Successful Itterations: {successfulCalls}</span>
+            <span>Successful Iterations: {successfulCalls}</span>
           </div>
           <div className="progress-track" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={requestProgress}>
             <div className="progress-fill" style={{ width: `${requestProgress}%` }} />

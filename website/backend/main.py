@@ -1,5 +1,6 @@
 import io
 import json
+import os
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from time import perf_counter
@@ -189,11 +190,17 @@ def to_one_item_list(value: Any, column_name: str) -> list[Any]:
 # --- Earth Engine Config ------
 # ------------------------------
 
-# Set these directly in this file so auth works without terminal env vars.
-# Recommended: use a service account JSON key.
-EE_PROJECT = "listeria-prediction-tool"
-EE_SERVICE_ACCOUNT = "temp-for-iafp-competition@listeria-prediction-tool.iam.gserviceaccount.com"
-EE_PRIVATE_KEY_PATH = BASE_DIR / "gee-service-account-key.json"
+# Environment-first configuration for production deploys.
+# Fallbacks keep local runs simple (no terminal input needed).
+EE_PROJECT = os.getenv("EE_PROJECT", "listeria-prediction-tool")
+EE_SERVICE_ACCOUNT = os.getenv(
+    "EE_SERVICE_ACCOUNT",
+    "temp-for-iafp-competition@listeria-prediction-tool.iam.gserviceaccount.com",
+)
+EE_PRIVATE_KEY_PATH = Path(
+    os.getenv("EE_PRIVATE_KEY_PATH", str(BASE_DIR / "gee-service-account-key.json"))
+)
+EE_PRIVATE_KEY_JSON = os.getenv("EE_PRIVATE_KEY_JSON")
 
 # checking if the geo points provided are within the US
 # (this is where the match is made for land cover)
@@ -218,13 +225,20 @@ def initialize_earth_engine() -> None:
 
     # initializing the google earth engine based on a service account. Lots of user feedback just in case
     try:
-        if service_account and private_key_path:
+        # Preferred in production: inject full JSON via secret env var.
+        if service_account and EE_PRIVATE_KEY_JSON:
+            credentials = ee.ServiceAccountCredentials(
+                service_account,
+                key_data=EE_PRIVATE_KEY_JSON,
+            )
+            ee.Initialize(credentials, project=ee_project)
+        elif service_account and private_key_path:
             key_path = Path(private_key_path)
             if not key_path.exists():
                 raise FileNotFoundError(
                     f"Earth Engine key file was not found: {key_path}"
                 )
-
+            
             credentials = ee.ServiceAccountCredentials(service_account, str(key_path))
             ee.Initialize(credentials, project=ee_project)
         else:
@@ -235,7 +249,7 @@ def initialize_earth_engine() -> None:
             status_code=503,
             detail=(
                 "Google Earth Engine initialization failed. "
-                "Update EE_PROJECT / EE_SERVICE_ACCOUNT / EE_PRIVATE_KEY_PATH in main.py, "
+                "Set EE_PROJECT / EE_SERVICE_ACCOUNT and either EE_PRIVATE_KEY_JSON or EE_PRIVATE_KEY_PATH. "
                 "or use local EE auth fallback. If you are recieving this message, please notify the github owner"
                 f"Underlying error: {exc}"
             ),

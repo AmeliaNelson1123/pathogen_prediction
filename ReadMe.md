@@ -181,8 +181,8 @@ In your terminal, from project root:
 cd website
 py -m venv .venv
 .venv\Scripts\Activate.ps1
-pip install -r website/requirements.txt
-uvicorn website.backend.main:app --host 127.0.0.1 --port 8000
+pip install -r requirements.txt
+uvicorn backend.main:app --host 127.0.0.1 --port 8000
 
 ``` 
 For mac users:
@@ -190,14 +190,27 @@ For mac users:
 cd website
 py -m venv .venv
 source .venv/bin/activate
-pip install -r website//requirements.txt
-uvicorn website.backend.main:app --host 127.0.0.1 --port 8000
+pip install -r requirements.txt
+uvicorn backend.main:app --host 127.0.0.1 --port 8000
 ```
 
 For troubleshooting, or if you have multiple python versions, run python3 --version, or python --version instead of py, and check your version. Then, use the corresponding py, python, python3 -<version> instead of py.
 For example, if python3 --version outputs python3.13, then use python3 -m venv .venv
 
 Click the http link in your terminal to open the webapp, or just type in http://127.0.0.1:8000 to your browser.
+
+### Earth Engine credentials for deployment (no end-user input required)
+For deployed environments, configure backend secrets once in your hosting platform:
+- `EE_PROJECT` (example: `listeria-prediction-tool`)
+- `EE_SERVICE_ACCOUNT` (example: `temp-for-iafp-competition@listeria-prediction-tool.iam.gserviceaccount.com`)
+- One of:
+  - `EE_PRIVATE_KEY_JSON` (recommended, full JSON content of the service-account key), or
+  - `EE_PRIVATE_KEY_PATH` (path to a key file on the server)
+
+Behavior:
+- Backend automatically reads these on startup.
+- End users do not enter anything in terminal or UI.
+- Local fallback remains supported with `website/backend/gee-service-account-key.json` if present.
 
 ### Uploading and Entering Data and Running the Predictive Model / Risk Score
 To run the predictive model please do 1 of the following:
