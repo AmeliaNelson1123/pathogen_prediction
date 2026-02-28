@@ -129,3 +129,7 @@ API Calls were made to or External Data Downloads were made to:
 
 
 Inspiration for development was prompted by IAFP Student Competition Hackathon 2026.
+
+
+## License
+This project is licensed under the terms of the Apache 2.0 license.
