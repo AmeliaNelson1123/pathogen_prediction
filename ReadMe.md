@@ -73,7 +73,6 @@ Use this if you have a shared competition Earth Engine key file.
 3. cd into your repository (i.e. cd /path/to/pathogen_prediction_comp)
 4. From repository root, run:
 ```powershell
-
 powershell -ExecutionPolicy Bypass -File .\setup_competition.ps1
 ```
 
@@ -88,7 +87,7 @@ Use this if you have a shared competition Earth Engine key file.
 
 1. Place key at:
    - `competition_secrets/gee-service-account-key.json`
-2. Open Terminal (App on Mac computer). Cmd + Space, type Terminal, Enter
+2. Open Terminal (App on Mac computer). (Cmd + Space, type Terminal, Enter)
 3. cd into your repository (i.e. cd /path/to/pathogen_prediction_comp)
 2. From repository root, run:
 ```bash

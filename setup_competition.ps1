@@ -1,10 +1,10 @@
-Set-StrictMode -Version Latest
-$ErrorActionPreference = "Stop"
-
 param(
     [string]$KeyPath = "competition_secrets\gee-service-account-key.json",
     [switch]$SkipInstall
 )
+
+Set-StrictMode -Version Latest
+$ErrorActionPreference = "Stop"
 
 function Get-PythonLauncher {
     if (Get-Command py -ErrorAction SilentlyContinue) {
