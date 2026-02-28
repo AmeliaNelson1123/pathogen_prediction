@@ -8,16 +8,16 @@ Project For: IAFP Student Competition
 - Amelia Nelson (aln65@cornell.edu)
 
 # Last Edit Date:
-02/27/2026
+02/28/2026
 
 # Goal:
 Development of a decision support tool for farmers to identify Listeria risk in soil
 
 ## Problem Description:
 Soil serves as an environmental reservoir for Listeria spp., including pathogenic strains such as Listeria monocytogenes, which can contaminate fresh produce via preharvest routes, such as irrigation runoff, animal intrusion, and rain splash ​(2, 3)​. Produce growers have been facing the need to implement proactive risk management, particularly under frameworks such as the Food Safety Modernization Act (FSMA). However, current soil testing strategies are
-    1. largely reactive rather than predictive,
-    2. resource intensive, and
-    3.  lack standard guidance ​(1, 4)​. 
+    1) largely reactive rather than predictive,
+    2) resource intensive, and
+    3)  lack standard guidance ​(1, 4)​. 
 
 While growers often collect data on soil properties (e.g., pH, nutrients, organic matter, these data are not routinely leveraged to assess microbial risk. Therefore, a data-driven approach that integrates these data to predict Listeria presence would allow for (i) risk-based soil sampling, (ii) development of targeted interventions, and (iii) efficient allocation of resources for testing. 
 
@@ -46,21 +46,21 @@ The objectives of this project are to
 ## Installation Instructions:
 
 ### Python version: 3.10 to 3.13
-### Node.js required 
 ### Requred dependencies are listed in requirements.txt, and differ for the website application vs the model preparation and analysis
 ### RAM requirements: suggusted to have at least 16 GB of RAM available for running models
 
+## Getting the code locally:
 ``` bash
 https://github.com/AmeliaNelson1123/pathogen_prediction.git
 cd pathogen_prediction
 ```
 
-Optional 
+Optional installation of high-level requirements:
 ``` bash
 pip install -r requirements.txt
 ```
 
-### To Run Website Interface
+### To Run Website Interface (Interactive Listeria Risk and Decision Tool)
 Try python 3.10, 3.11, or 3.13 if the website is not loading or the requirements did not download correctly.
 
 
@@ -102,6 +102,7 @@ and in the specified area, please select the "CSV (comma delimited)" option.
 Open preparation\listeria_eda.ipynb, and run all cells with a python 3.10 python interpreter.
 
 ### To Run Models used in the website:
+Open preparation\saving_selected_models_for_pipeline.py and run the python file.
 
 ### To Run our Modeling Testing Process:
 Open preparation\Run_Models_and_Analyze.ipynb, and run all cells with a python 3.10 python interpreter.
@@ -122,7 +123,7 @@ Random Seed, test size, model results, and context was documented throughout our
 We recognize that API calls, package deployments (as listed in the requirements), and more will change over time, but we hope to diminish the amount of change as much as possble by keeping our work as reproducible as possible.
 
 ## Design Decisions:
-We chose to keep our preliminary work on evaluating the data (listeria_eda.ipynb) and the model selection (Run_Models_and_Analyze.ipynb) within our repository to show context to our decisions and show our process for the IAFP Student Competition Hackathon. The process saves the models selected with the file saving_selected_models_for_pipeline.py.
+We chose to keep our preliminary work on evaluating the data (listeria_eda.ipynb) and the model selection (Run_Models_and_Analyze.ipynb) within our repository to show context to our decisions and show our process for the IAFP 2026 Student Competition Hackathon. The process saves the models selected with the file saving_selected_models_for_pipeline.py.
 
 ## Citations, Thanks, and Recognitions
 Data was provided by:
