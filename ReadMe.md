@@ -15,18 +15,18 @@ Development of a decision support tool for farmers to identify Listeria risk in 
 
 ## Problem Description:
 Soil serves as an environmental reservoir for Listeria spp., including pathogenic strains such as Listeria monocytogenes, which can contaminate fresh produce via preharvest routes, such as irrigation runoff, animal intrusion, and rain splash ​(2, 3)​. Produce growers have been facing the need to implement proactive risk management, particularly under frameworks such as the Food Safety Modernization Act (FSMA). However, current soil testing strategies are
-(i) largely reactive rather than predictive,
-(ii) resource intensive, and
-(iii) lack standard guidance ​(1, 4)​. 
+    1. largely reactive rather than predictive,
+    2. resource intensive, and
+    3.  lack standard guidance ​(1, 4)​. 
 
 While growers often collect data on soil properties (e.g., pH, nutrients, organic matter, these data are not routinely leveraged to assess microbial risk. Therefore, a data-driven approach that integrates these data to predict Listeria presence would allow for (i) risk-based soil sampling, (ii) development of targeted interventions, and (iii) efficient allocation of resources for testing. 
 
 ## Objectives:
 The objectives of this project are to
-(i) develop predictive models for Listeria presence in soil,
-(ii) identify environmental drivers of Listeria risk,
-(iii) evaluate model robustness and generalizability, and
-(iv) develop a grower-friendly decision-support tool. 
+    1. develop predictive models for Listeria presence in soil,
+    2. identify environmental drivers of Listeria risk,
+    3. evaluate model robustness and generalizability, and
+    4. develop a grower-friendly decision-support tool. 
 
 
 ## Workflow Diagram and Features
