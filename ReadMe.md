@@ -189,7 +189,7 @@ For mac users:
 ``` bash (zsh)
 cd website
 py -m venv .venv
-.venv\Scripts\Activate.ps1
+source .venv/bin/activate
 pip install -r website/backend/requirements.txt
 uvicorn website.backend.main:app --host 127.0.0.1 --port 8000
 ```
