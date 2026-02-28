@@ -4,6 +4,7 @@ import "leaflet/dist/leaflet.css";
 import "./App.css";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "/api";
+const MIN_FORECAST_DATE_UTC = new Date(Date.UTC(2010, 0, 1));
 const REQUIRED_CSV_COLUMNS_WITH_LONLAT = [
   "Moisture",
   "Total nitrogen (%)",
@@ -94,7 +95,7 @@ function App() {
     const todayUtc = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
     const maxUtc = new Date(todayUtc);
     maxUtc.setUTCDate(maxUtc.getUTCDate() + 14);
-    return dateUtc <= maxUtc;
+    return dateUtc >= MIN_FORECAST_DATE_UTC && dateUtc <= maxUtc;
   };
 
   {/*Clearing the coordinates button function*/}
@@ -148,7 +149,7 @@ function App() {
         return;
       }
       if (!isForecastDateAllowed(parsedForecastDate)) {
-        setResult("Error: Date is too far ahead. Choose historical/today or up to 14 days into the future (UTC).");
+        setResult("Error: Date must be between 01/01/2010 and up to 14 days in the future (UTC).");
         setLoading(false);
         setRequestProgress(0);
         setRequestStage("Date out of bounds");
@@ -178,7 +179,7 @@ function App() {
     try {
       {/*Connection to backend*/}
       setRequestProgress(40);
-      setRequestStage("Sending API request...");
+      setRequestStage("Getting data and modeling...");
       const response = await fetch(`${API_BASE_URL}/predict`, {
         method: "POST",
         body: formData,
@@ -197,28 +198,18 @@ function App() {
           setRequestStage(`GIS loaded (${ms} ms). Finalizing model output...`);
         }
 
-        {/*building object with prediction result and NLCD percentages! so that it can be displayed*/}
+        {/* Just in case there is nothing you can do better*/}
+        const recommendations = Array.isArray(data.add_message) && data.add_message.length
+          ? data.add_message.map((msg) => `- ${msg}`).join("\n")
+          : "- No recommendations available.";
+        const scoreRaw = Number(data.displayed_result);
+        const riskScore = Number.isFinite(scoreRaw) ? scoreRaw : 0;
+
+        {/* the display to the user */}
         setResult(
-          JSON.stringify(
-            {
-              result: data.result,
-              model_type: data.model_type,
-              nlcd_percentages: data.nlcd_percentages,
-              weather_data: data.weather_data,
-              forecast_date_utc: data.forecast_date_utc,
-              irrigation_mode: data.irrigation_mode,
-              wildlife_mode: data.wildlife_mode,
-              manure_mode: data.manure_mode,
-              buffer_zone_mode: data.buffer_zone_mode,
-              probability_presence_base: data.probability_presence_base,
-              probability_presence_adjusted: data.probability_presence_adjusted,
-              to_return_risk_class: data.to_return_risk_class,
-              displayed_result: data.displayed_result,
-              add_message: data.add_message,
-            },
-            null,
-            2
-          )
+          `Risk of Listeria present in the soil: ${data.to_return_risk_class || "Unknown"}\n` +
+          `Recommendations:\n${recommendations}\n\n` +
+          `Risk Probability: ${riskScore.toFixed(4)} (Below .59 is unlikely to have Listeria)`
         );
         setRequestProgress(100);
         setRequestStage("Complete");
@@ -265,18 +256,48 @@ function App() {
         </div>
         {/* Here is where the Tool name and tool description is*/}
         <h1>Listeria Risk Tool</h1>
-        <p className="hero-copy">
-          The goal of this project is to help you identify the risk level of your field.
+        <div className="hero-copy">
+          <p>
+            Soil serves as an environmental reservoir for Listeria spp., including pathogenic strains such as
+            Listeria monocytogenes, which can contaminate fresh produce via preharvest routes such as irrigation
+            runoff, animal intrusion, and rain splash.
+          </p>
+          <p>
+            Produce growers have been facing the need to implement proactive risk management, particularly under
+            frameworks such as the Food Safety Modernization Act (FSMA). However, current soil testing strategies are:
+          </p>
+          <ul>
+            <li>largely reactive rather than predictive,</li>
+            <li>resource intensive, and</li>
+            <li>lack standard guidance.</li>
+          </ul>
+          <p>
+            While growers often collect data on soil properties (e.g., pH, nutrients, organic matter), these data are
+            not routinely leveraged to assess microbial risk. A data-driven approach that integrates these data to
+            predict Listeria presence would allow for:
+          </p>
+          <ul>
+            <li>risk-based soil sampling,</li>
+            <li>development of targeted interventions, and</li>
+            <li>efficient allocation of resources for testing.</li>
+          </ul>
 
-          Upload a field dataset and/or set a location to score pathogen risk and prediction outputs. Then choose a prediction model or a risk model.
-
-          If you want to predict your likelihood of Listeria contamination, use the prediction model.
-          If you want to predict the risk of Listeria in your field, then select the risk model. 
-
-          For the best results, include both a coordinate selection and soil test results. 
-          
-          If you do not have soil results yet, and you want help deciding if getting a soil test would help you identify Listeria risk, then select the risk model, and just run it with longitude and latitude.
-        </p>
+          <p className="how-to-title">How to Use</p>
+          <p>
+            Upload a field dataset and/or set a location to score pathogen risk. Then choose a type of prediction
+            model. The selected date should be the date relative to the Listeria risk.
+          </p>
+          <p>
+            For the best results, include both a coordinate selection and soil test results, and select a category
+            for each optional dropdown.
+          </p>
+          <p>
+            If you do not have soil results yet and want help deciding whether soil testing would help identify
+            Listeria risk, select the prediction model and run it using longitude and latitude only. If you have
+            moderate or high risk, we recommend soil testing.
+          </p>
+          <p>Soil testing does not have to be on the date listed and can be from previous soil tests.</p>
+        </div>
       </div>
 
       {/* this section is the help button at the top right corner (main how to help) */}
@@ -504,6 +525,7 @@ function App() {
 
         </section>
 
+        {/* Model adjustments */}
         <section className="card">
           <h2>Model Control</h2>
           <label className="label">Model Type (which model variant to use)</label>
@@ -520,6 +542,7 @@ function App() {
             <option value="soil_longlat">Both Soil and Latitude Longitude Information</option>
           </select>
 
+          {/* Optional post-modeling drop downs for user*/}
           <label className="label">Irrigation (optional)</label>
           <select className="select-input" value={irrigationMode} onChange={(e) => setIrrigationMode(e.target.value)}>
             <option value="none">No selection</option>
@@ -559,7 +582,7 @@ function App() {
           </button>
           <div className="progress-meta">
             <span>Status: {requestStage}</span>
-            <span>Successful API Calls: {successfulCalls}</span>
+            <span>Successful Itterations: {successfulCalls}</span>
           </div>
           <div className="progress-track" role="progressbar" aria-valuemin={0} aria-valuemax={100} aria-valuenow={requestProgress}>
             <div className="progress-fill" style={{ width: `${requestProgress}%` }} />

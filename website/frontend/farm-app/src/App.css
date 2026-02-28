@@ -84,8 +84,31 @@
 
 .hero-copy {
   margin: 0.7rem 0 0;
-  max-width: 70ch;
+  width: 100%;
+  max-width: min(100%, 105ch);
   color: var(--text-body);
+}
+
+.hero-copy p {
+  margin: 0.6rem 0;
+  line-height: 1.45;
+}
+
+.hero-copy ul {
+  margin: 0.25rem 0 0.8rem 1.35rem;
+  padding: 0;
+}
+
+.hero-copy li {
+  margin: 0.2rem 0;
+  line-height: 1.4;
+}
+
+.how-to-title {
+  margin-top: 0.95rem;
+  font-size: 1.08rem;
+  font-weight: 700;
+  color: var(--text-strong);
 }
 
 .theme-toggle {
@@ -437,6 +460,7 @@
 .result-box p {
   margin: 0;
   color: var(--result-text);
+  white-space: pre-wrap;
 }
 
 /* Dark mode palette overrides for every bubble/control */

@@ -16,4 +16,3 @@ __pycache__
 # sometimes created when website created
 package-lock.json
 **/package-lock.json
-**/package.json

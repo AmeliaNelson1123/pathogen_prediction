@@ -34,7 +34,7 @@ The intention of this project is to develop a decsion support tool for farmers a
 ## Installation Instructions:
 
 ### Python version: 3.10 to 3.13
-### Node.js required 
+### Node.js is only required for maintainers to rebuild the frontend. End users can run with Python only.
 ### Requred dependencies are listed in requirements.txt, and differ for the website application vs the model preparation and analysis
 ### RAM requirements: suggusted to have at least 16 GB of RAM available for running models
 
@@ -48,31 +48,37 @@ Optional
 pip install -r requirements.txt
 ```
 
-### To Run Website Interface
-Create 2 powershel terminals:
-Ensure both terminals are in the *pathogen_prediction/* folder cloned in from the website
+### To Run Website Interface (Python-only)
+Try python 3.10, 3.11, or 3.13 if the website is not loading or the requirements did not download correctly.
 
-1 terminal will be designated as the backend, and one terminal will be designated as the frontend
 
-### Backend terminal
+In your terminal, from project root:
 ``` bash
-cd website/backend
-py -3.10 -m venv .venv
-.\.venv\Scripts\Activate.ps1
-python --version
-python -m pip install --upgrade pip
-python -m pip install -r requirements.txt
-python -m uvicorn main:app --reload
+py -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r website/backend/requirements.txt
+.\.venv\Scripts\python.exe -m uvicorn website.backend.main:app --host 127.0.0.1 --port 8000
+
 ``` 
 
-### Frontend terminal
+
+Then open the website at:
+
 ``` bash
-cd website/frontend/farm-app
-npm install
-npm run dev
+http://127.0.0.1:8000
 ```
 
-Once the backend, then frontend have started, click the http link in your frontend terminal to open the webapp. (The local host should be http://localhost:5173).
+The same FastAPI process serves both the API and the prebuilt frontend.
+
+### Maintainer Step: Rebuild Frontend (Node.js only, not needed by end users)
+If you changed frontend code, rebuild before committing:
+
+``` bash
+cd website/frontend/farm-app
+npm ci
+npm run build
+```
+
+This updates `website/frontend/farm-app/dist`, which is served by FastAPI.
 
 ### Uploading and Entering Data and Running the Predictive Model / Risk Score
 To run the predictive model please do 1 of the following:

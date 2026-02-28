@@ -12,6 +12,7 @@ import joblib
 import pandas as pd
 from fastapi import FastAPI, File, Form, HTTPException, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 
 import ee
 import numpy as np
@@ -34,6 +35,7 @@ app.add_middleware(
 
 # creating base variabels
 BASE_DIR = Path(__file__).resolve().parent
+FRONTEND_DIST_DIR = BASE_DIR.parent / "frontend" / "farm-app" / "dist"
 # creating options for model files by input variant and model family
 # each entry is a list of fallback candidates, first-existing path is used.
 MODEL_PATH_CANDIDATES: dict[str, dict[str, list[Path]]] = {
@@ -334,6 +336,12 @@ def parse_forecast_date_mmddyyyy(raw_date: str) -> date:
             status_code=400,
             detail="Date must be in MM/DD/YYYY format. For example, Febuary 21, 2026 is inputted as 02/21/2026",
         ) from exc
+    min_allowed_date = date(2010, 1, 1)
+    if parsed < min_allowed_date:
+        raise HTTPException(
+            status_code=400,
+            detail="Date cannot be earlier than 01/01/2010.",
+        )
     return parsed
 
 # grabbing api data for the daily weather data
@@ -690,6 +698,7 @@ def risk_class_from_probability(p: float) -> str:
 
 # quick check endpoint so we can test Google Earth Engine auth independently
 @app.get("/health/earth-engine")
+@app.get("/api/health/earth-engine")
 def earth_engine_health() -> dict[str, Any]:
     initialize_earth_engine()
     return {"success": True, "earth_engine_initialized": True}
@@ -697,6 +706,7 @@ def earth_engine_health() -> dict[str, Any]:
 
 # Now, we are running the model
 @app.post("/predict")
+@app.post("/api/predict")
 async def predict(
     file: UploadFile | None = File(default=None),
     lat: float | None = Form(default=None),
@@ -758,7 +768,7 @@ async def predict(
     # automatically working with if there is a csv inputed or not and running with and without soil
     if longlat_mode == "soil_only":
         # adding message to say input long for better model accuracy
-        add_message.append("Add Longitude, Latitude, and Date information to improve model, and more accurately assess your risk of Listeria. (Coordinates and dates will automatically import the elevation and weather data which will improve the model's ability to access the risk of Listeria)")
+        add_message.append("Add Longitude, Latitude, and Date information to improve model (and select Soil and Longitude and Latitude Model) and more accurately assess your risk of Listeria. (Coordinates and dates will automatically import the elevation and weather data which will improve the model's ability to access the risk of Listeria)")
 
         # attempting to read in the csv
         try:
@@ -781,7 +791,7 @@ async def predict(
         model_variant = "soil_only"
     elif longlat_mode == "longlat_only":
         # adding message to say input long for better model accuracy
-        add_message.append("Add Soil CSV information to improve model, and more accurately assess your risk of Listeria.")
+        add_message.append("Add Soil CSV information to improve model (and select the Soil and Longitude and Latitude Model), and more accurately assess your risk of Listeria.")
 
         # handeling api calls to get data with long and lat
         dict_df = {
@@ -989,32 +999,31 @@ async def predict(
     to_return_risk_class = risk_class_from_probability(displayed_result)
     # adding messages to provide feedback and hopefully helpful remarks
     if irrigation_mode == "24_rain_window":
-        add_message.append("Irrigation/rain in the last 24 hours raises risk. Increase caution before harvest and apply stricter hygiene controls.")
+        add_message.append("Irrigation/rain in the last 24 hours raises risk significantly. Consider additional verification, such as Listeria testing, before harvest. Make sure to clean equipment and consider waiting at least 144 hours before harvesting.")
     elif irrigation_mode in ("48_rain_window", "72_rain_window"):
-        add_message.append("Recent irrigation/rain can increase risk. Consider additional verification before harvest.")
+        add_message.append("Recent irrigation/rain can increase risk. Consider additional verification, such as Listeria testing, before harvest. Make sure to clean equipment and consider waiting at least 144 hours before harvesting.")
 
     if wildlife_mode == "high_risk_wildlife":
-        add_message.append("Active wildlife traffic increases contamination risk. Exclude visibly affected zones, increase field scouting, and strengthen deterrents/barriers.")
+        add_message.append("Active wildlife traffic increases contamination risk. It is recommend to create a buffer zone, exclude visibly affected zones, increase field scouting, and/or strengthen deterrents/barriers.")
     elif wildlife_mode == "moderate_risk_wildlife":
-        add_message.append("Wildlife evidence suggests moderate risk. Intensify monitoring and avoid harvesting from impacted areas until reassessed.")
+        add_message.append("Wildlife evidence suggests moderate risk. Intensify monitoring and create a buffer zone, and/or strengthen detterents/barriers.")
+    
     if manure_mode == "manure_within_365_days":
-        add_message.append("Manure application within 365 days of harvest increases risk. Reassess mitigation steps before harvest.")
+        add_message.append("Manure application within 365 days of harvest increases risk. Ensure manure is correctly handled and processed before spreading.")
     elif manure_mode == "manure_over_365_days":
         add_message.append("Historic manure use may still influence risk. Continue routine monitoring and sanitation controls.")
 
     if buffer_zone_mode == "no_buffer_zone":
-        add_message.append("No buffer zone can increase contamination risk from adjacent areas.")
-    elif buffer_zone_mode == "buffer_zone":
-        add_message.append("A buffer zone can reduce contamination transfer risk from adjacent areas.")
-
+        add_message.append("No buffer zone can increase contamination risk from adjacent areas or wildlife.")
+    
     if to_return_risk_class == "High Risk":
-        add_message.append("High overall risk of Listeria presense in soil: targeted environmental testing, and strict sanitation before harvest decisions.")
+        add_message.append("High risk of Listeria presense in soil: targeted environmental testing is recommended, and impliment strategies to combat Listeria risk, such as sanitation or harvesting 144+ hours after rain/irrigation.")
     elif to_return_risk_class == "Moderate Risk":
-        add_message.append("Moderate overall risk of Listeria presense in soil: increase monitoring frequency and tighten irrigation and harvest hygiene controls.")
+        add_message.append("Moderate risk of Listeria presense in soil: increase monitoring frequency and tighten irrigation and harvest hygiene controls.")
     elif to_return_risk_class == "Low Risk":
-        add_message.append("Low overall risk of Listeria presense in soil: continue routine controls and verification sampling.")
+        add_message.append("Low risk of Listeria presense in soil: continue routine controls and verification sampling.")
     else:
-        add_message.append("Very low likelihood of finding Listeria in soil: No special measures are needed. Maintain current non-elevated controls and periodic verification.\nYou are Below 9%, which is lower than standard likelihood.")
+        add_message.append("Very low likelihood of finding Listeria in soil: No special measures are needed. Maintain current non-elevated controls and periodic verification.")
     
     # returning results if pressent!
     return {
@@ -1041,3 +1050,8 @@ async def predict(
         "nlcd_percentages": nlcd_percentages,
         "weather_data": weather_data,
     }
+
+
+if FRONTEND_DIST_DIR.exists():
+    # Serve prebuilt frontend so end users can run with Python only.
+    app.mount("/", StaticFiles(directory=FRONTEND_DIST_DIR, html=True), name="frontend")
