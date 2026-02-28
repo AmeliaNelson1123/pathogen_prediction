@@ -20,3 +20,8 @@ package-lock.json
 .DS_Store
 **/.DS_Store
 preparation/.DS_Store
+
+# Never commit cloud service-account keys
+website/backend/gee-service-account-key.json
+competition_secrets/*.json
+**/*service-account*.json

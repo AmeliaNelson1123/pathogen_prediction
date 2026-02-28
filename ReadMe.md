@@ -1,282 +1,266 @@
-# Project Name: Decision Support Tool for Farmers to Identify Listeria spp. Risk
-Project For: IAFP Student Competition
+# Decision Support Tool for Farmers to Identify *Listeria* spp. Risk
+Project for the IAFP Student Competition.
 
-## Authors:
+Last edit date: 02/28/2026
+
+## Authors
 - YeonJin Jung (yj354@cornell.edu)
 - Leonie Kemmerling (lk483@cornell.edu)
 - Linda Kalunga (lk549@cornell.edu)
 - Amelia Nelson (aln65@cornell.edu)
 
-# Last Edit Date:
-02/28/2026
+## Table Of Contents
+- [Goal](#goal)
+- [Problem Description](#problem-description)
+- [Objectives](#objectives)
+- [Quick Start](#quick-start)
+- [Run The Website (Manual Fallback)](#run-the-website-manual-fallback)
+- [Google Earth Engine Setup](#google-earth-engine-setup)
+- [How To Use The Website](#how-to-use-the-website)
+- [Workflow And Model Results](#workflow-and-model-results)
+- [Run Preparation Files](#run-preparation-files)
+- [Repository Structure](#repository-structure)
+- [Reproducibility Statement](#reproducibility-statement)
+- [Design Decisions](#design-decisions)
+- [Citations, Thanks, And Recognitions](#citations-thanks-and-recognitions)
+- [License](#license)
 
-# Goal:
-Development of a decision support tool for farmers to identify Listeria risk in soil
+## Goal
+Development of a decision support tool for farmers to identify *Listeria* risk in soil.
 
-## Problem Description:
-Soil serves as an environmental reservoir for Listeria spp., including pathogenic strains such as Listeria monocytogenes, which can contaminate fresh produce via preharvest routes, such as irrigation runoff, animal intrusion, and rain splash ​(2, 3)​. Produce growers have been facing the need to implement proactive risk management, particularly under frameworks such as the Food Safety Modernization Act (FSMA). However, current soil testing strategies are
-    1) largely reactive rather than predictive,
-    2) resource intensive, and
-    3)  lack standard guidance ​(1, 4)​. 
+## Problem Description
+Soil serves as an environmental reservoir for *Listeria* spp., including pathogenic strains such as *Listeria* monocytogenes, which can contaminate fresh produce via preharvest routes such as irrigation runoff, animal intrusion, and rain splash (2, 3). Produce growers have been facing the need to implement proactive risk management, particularly under frameworks such as the Food Safety Modernization Act (FSMA). However, current soil testing strategies are:
+1. largely reactive rather than predictive,
+2. resource intensive, and
+3. lacking standard guidance (1, 4).
 
-While growers often collect data on soil properties (e.g., pH, nutrients, organic matter, these data are not routinely leveraged to assess microbial risk. Therefore, a data-driven approach that integrates these data to predict Listeria presence would allow for (i) risk-based soil sampling, (ii) development of targeted interventions, and (iii) efficient allocation of resources for testing. 
+While growers often collect data on soil properties (for example pH, nutrients, and organic matter), these data are not routinely leveraged to assess microbial risk. Therefore, a data-driven approach that integrates these data to predict *Listeria* presence would allow for:
+1. risk-based soil sampling,
+2. development of targeted interventions, and
+3. efficient allocation of resources for testing.
 
-## Objectives:
-The objectives of this project are to
-    1. develop predictive models for Listeria presence in soil,
-    2. identify environmental drivers of Listeria risk,
-    3. evaluate model robustness and generalizability, and
-    4. develop a grower-friendly decision-support tool. 
+## Objectives
+The objectives of this project are to:
+1. develop predictive models for *Listeria* presence in soil,
+2. identify environmental drivers of *Listeria* risk,
+3. evaluate model robustness and generalizability, and
+4. develop a grower-friendly decision-support tool.
 
+## Quick Start
+### Requirements
+- Python version: 3.10 to 3.13
+- Required website dependencies are listed in `website/requirements.txt`
+- RAM: suggested at least 16 GB for model work
+- Node.js is required for future frontend developers, not required for website users/testers
 
-## Workflow Diagram and Features
-![Workflow Diagram](workflow-diagram.png)
-
-### Training
-- Listeria data was analyzed using an Exploratory Data Analysis (listeria_eda.ipynb)
-- 6 models were tested to evaluate predictive ability to identify Listeria spp. presense (Run_Models_and_Analyze.ipynb OR run_models_basic.py). To see a table on the top model performance for each model, see table 1.
-- The top 3 models were selected and optimized by hyperparameters and data engineering. Data engineering was done through feature selection, log transformations, and more (listeria_eda.ipynb and Run_Models_and_Analyze.ipynb). 
-- Feature Selection was done through literature reviews, expert insight, and permuntation and feature importance looked at through model results and PCA transformations (listeria_eda.ipynb and Run_Models_and_Analyze.ipynb).
-
-### Table 1: Performance metrics for the BEST model of each type (sorted by accuracy):
-| model used | scalar_status | accuracy |
-|---|---|---|
-| Row 1, Col 1 | Row 1, Col 2 | Row 1, Col 3 |
-| Row 2, Col 1 | Row 2, Col 2 | Row 2, Col 3 |
-
-
-
-precision
-recall
-f1
-636
-gbm
-standard_scalar
-0.941606
-0.959459
-0.934211
-0.946667
-645
-gbm
-orig
-0.934307
-0.946667
-0.934211
-0.940397
-166
-neural net
-standard_scalar
-0.905109
-0.956522
-0.868421
-0.910345
-617
-svm
-standard_scalar
-0.890511
-0.896104
-0.907895
-0.901961
-547
-decision_tree
-orig
-0.883212
-0.905405
-0.881579
-0.893333
-520
-decision_tree
-standard_scalar
-0.868613
-0.881579
-0.881579
-0.881579
-588
-random_forest
-orig
-0.861314
-0.880000
-0.868421
-0.874172
-561
-random_forest
-standard_scalar
-0.861314
-0.880000
-0.868421
-0.874172
-4
-logistic regression
-standard_scalar
-0.846715
-0.857143
-0.868421
-0.862745
-501
-knn
-standard_scalar
-0.839416
-0.875000
-0.828947
-0.851351
-515
-knn
-orig
-0.810219
-0.847222
-0.802632
-0.824324
-393
-neural net
-orig
-0.715328
-0.753425
-0.723684
-0.738255
-10
-logistic regression
-orig
-0.656934
-0.716418
-0.631579
-0.671329
-619
-svm
-orig
-0.627737
-0.676056
-0.631579
-0.653061
-
-
-### Deployment
-- Risk catagories were developed through literature review and expert opinion.
-- Decision support tools were then deployed in the form of a website.
-- API calls were attatched to the website so that the farmer could input their field location to get specific results.
-
-
-## Installation Instructions:
-
-### Python version: 3.10 to 3.13
-### Requred dependencies are listed in requirements.txt, and differ for the website application vs the model preparation and analysis
-### RAM requirements: suggusted to have at least 16 GB of RAM available for running models
-
-## Getting the code locally:
-``` bash
-https://github.com/AmeliaNelson1123/pathogen_prediction.git
+### Get The Code
+```bash
+git clone https://github.com/AmeliaNelson1123/pathogen_prediction.git
 cd pathogen_prediction
 ```
 
-Optional installation of high-level requirements:
-``` bash
+Optional high-level requirements:
+```bash
 pip install -r requirements.txt
 ```
 
-### To Run Website Interface (Interactive Listeria Risk and Decision Tool)
-Try python 3.10, 3.11, or 3.13 if the website is not loading or the requirements did not download correctly.
+### Competition Recommended Startup (Windows), after cloning the repository
+Use this if you have a shared competition Earth Engine key file.
 
+1. Place key at:
+   - `competition_secrets/gee-service-account-key.json`
+2. Open Powershell 
+3. cd into your repository (i.e. cd /path/to/pathogen_prediction_comp)
+4. From repository root, run:
+```powershell
 
-In your terminal, from project root:
-``` bash (powershell)
+powershell -ExecutionPolicy Bypass -File .\setup_competition.ps1
+```
+
+The script:
+- copies the key to `website/backend/gee-service-account-key.json` for runtime,
+- creates `.venv` if needed,
+- installs `website/requirements.txt`,
+- starts `uvicorn` at `http://127.0.0.1:8000`.
+
+### Competition Recommended Startup (macOS/Linux), after cloning the repository
+Use this if you have a shared competition Earth Engine key file.
+
+1. Place key at:
+   - `competition_secrets/gee-service-account-key.json`
+2. Open Terminal (App on Mac computer). Cmd + Space, type Terminal, Enter
+3. cd into your repository (i.e. cd /path/to/pathogen_prediction_comp)
+2. From repository root, run:
+```bash
+chmod +x ./setup_competition.sh
+./setup_competition.sh
+```
+
+## Run The Website (Manual Fallback)
+### Windows (PowerShell), from project root
+```powershell
 cd website
 py -m venv .venv
 .venv\Scripts\Activate.ps1
 pip install -r requirements.txt
 uvicorn backend.main:app --host 127.0.0.1 --port 8000
+```
 
-``` 
-For mac users:
-``` bash (zsh)
+### macOS/Linux (zsh), from project root
+```bash
 cd website
-py -m venv .venv
+python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 uvicorn backend.main:app --host 127.0.0.1 --port 8000
 ```
 
-For troubleshooting, or if you have multiple python versions, run python3 --version, or python --version instead of py, and check your version. Then, use the corresponding py, python, python3 -<version> instead of py.
-For example, if python3 --version outputs python3.13, then use python3 -m venv .venv
+Open `http://127.0.0.1:8000` in your browser.
 
-Click the http link in your terminal to open the webapp, or just type in http://127.0.0.1:8000 to your browser.
+### Troubleshooting
+If you have multiple Python versions, run `python3 --version` (or `python --version`), then use the matching command to create the venv.  
+Example 1:
+```bash
+python3 -m venv .venv
+```
+Example 2:
+``` bash
+py -3.10 -m venv .venv
+```
 
-### Earth Engine credentials for deployment (no end-user input required)
-For deployed environments, configure backend secrets once in your hosting platform:
-- `EE_PROJECT` (example: `listeria-prediction-tool`)
-- `EE_SERVICE_ACCOUNT` (example: `temp-for-iafp-competition@listeria-prediction-tool.iam.gserviceaccount.com`)
-- One of:
-  - `EE_PRIVATE_KEY_JSON` (recommended, full JSON content of the service-account key), or
-  - `EE_PRIVATE_KEY_PATH` (path to a key file on the server)
+## Google Earth Engine Setup
+For longitude/latitude-based model runs, Earth Engine credentials are required.
 
-Behavior:
-- Backend automatically reads these on startup.
-- End users do not enter anything in terminal or UI.
-- Local fallback remains supported with `website/backend/gee-service-account-key.json` if present.
+### Option 1: Key Handoff (ONLY if you have access to the drive with the service account keys)
+No change is needed from the automatic startup options referenced above:
+- [Competition Recommended Startup (Windows)](#competition-recommended-startup-windows)
+- [Competition Recommended Startup (macoslinux)](#competition-recommended-startup-macoslinux)
 
-### Uploading and Entering Data and Running the Predictive Model / Risk Score
-To run the predictive model please do 1 of the following:
-- To run a soil-only model: 
-    1) Upload a CSV in the "Soil CSV Upload (optional)" Section
-    2) In the "Model Mode (with or without soil/coordinates)" Section, click the dropdown and select "Soil Information Only". 
-    3) In "Model Type", select any of the options ("Gradient Boosted Model (Recommended and Best)", "Neural Network", or "SVM (Support Vector Machine)")
-- To run a model from longitude and latitude data only (weather and elevation data retrieved from an API automatically)
-    1) Enter a date of interest (any time after 2010, and up to 14 days in the future) in the Month/Day/Year format (i.e. 02/14/2026). Please note the current day's data and future data will be retrieved through a forcasting model, and could be innacurate and affect model results.
-    2) Select a point on the map or manually enter a coordinate using the "Choosing Coordinates" section.
-        - To enter a point manually, press the "Manual Entry" button and input your longitude and latitude.
-        - To select a point on the map, press the "Map Pick" button and drag/zoom in as needed to select your location on a map. The selected coordinates will be displayed below the map.
-    3) In the "Model Mode (with or without soil/coordinates)" Section, click the dropdown and select "Latitude and Longitude Information Only". 
-    4) In "Model Type", select any of the options ("Gradient Boosted Model (Recommended and Best)", "Neural Network", or "SVM (Support Vector Machine)")
-- To run a model with both soil data and longitude/latitude data, please follow the instructions of the previous two sections (add soil *and* longitude/latitude data)
+Notes:
+- End users do not enter secrets in the web interface.
+- End users do not need to edit `main.py`.
+- Keys are ignored by `.gitignore` and should never be committed.
 
-For more information on the soil data requirements, please select the help button, and/or dowload the CSVs provided. 
+### Option 2: Create Your Own Service Account And Key
+Official setup docs:
+- Earth Engine service accounts: https://developers.google.com/earth-engine/guides/service_account
+- Earth Engine access control and roles: https://developers.google.com/earth-engine/guides/access_control
+- Create service accounts: https://cloud.google.com/iam/docs/service-accounts-create
+- Create/manage JSON keys: https://cloud.google.com/iam/docs/keys-create-delete
+- IAM role reference: https://cloud.google.com/iam/docs/roles-permissions
 
-For information on how to go from an excel file to a CSV file, please go to this website: https://support.microsoft.com/en-us/office/save-a-workbook-to-text-format-txt-or-csv-3e9a9d6c-70da-4255-aa28-fcacf1f081e6
+Minimum service-account roles for this app's read-only Earth Engine usage:
+- `roles/earthengine.viewer` (Earth Engine Resource Viewer)
+- `roles/serviceusage.serviceUsageConsumer` (if required by project API access policy)
+- `roles/earthengine.writer` (included in this project setup for easier API-related workflows)
 
-and in the specified area, please select the "CSV (comma delimited)" option.
+Roles typically needed by the human/admin creating service accounts and keys:
+- `roles/iam.serviceAccountAdmin`
+- `roles/iam.serviceAccountKeyAdmin`
 
+## How To Use The Website
+Run one of the following:
 
+1. Soil-only model:
+- Upload a CSV in the `Soil CSV Upload (optional)` section.
+- In `Model Mode (with or without soil/coordinates)`, select `Soil Information Only`.
+- In `Model Type`, choose one of:
+  - Gradient Boosted Model (recommended),
+  - Neural Network,
+  - SVM.
 
-### To Run Exploratory Data Analysis:
-Open preparation\listeria_eda.ipynb, and run all cells with a python 3.10 python interpreter.
+2. Longitude/latitude-only model (weather/elevation fetched automatically):
+- Enter date as `MM/DD/YYYY` (after 2010 and up to 14 days in the future, for example `02/14/2026`).
+- Select coordinates by map click or manual entry.
+- In `Model Mode (with or without soil/coordinates)`, select `Latitude and Longitude Information Only`.
+- In `Model Type`, choose one of:
+  - Gradient Boosted Model (recommended),
+  - Neural Network,
+  - SVM.
 
-### To Run Models used in the website:
-Open preparation\saving_selected_models_for_pipeline.py and run the python file.
+3. Combined soil + longitude/latitude model:
+- Provide both soil input and coordinate/date input, then run.
 
-### To Run our Modeling Testing Process:
-Open preparation\Run_Models_and_Analyze.ipynb, and run all cells with a python 3.10 python interpreter.
+For more soil-data format details, use the in-app help button and example CSV files.
 
-## Repository Structure:
-/data -> Raw and processed data
-/website -> website interface
-/website/backend/main.py -> the api calls, models, and risk adjustments
-/website/backend/models/ -> where the models are saved
-/website/frontend/farm-app/src/ -> how the model looks and interacts with the backend
-/website/frontend/farm-app/public/ -> the soil example files and any pngs displayed in the website
-/preparation -> exploratory data analysis and model selection files
+Excel to CSV reference:
+https://support.microsoft.com/en-us/office/save-a-workbook-to-text-format-txt-or-csv-3e9a9d6c-70da-4255-aa28-fcacf1f081e6  
+Use `CSV (comma delimited)` format.
 
+## Workflow And Model Results
+### Workflow Diagram
+![Workflow Diagram](workflow-diagram.png)
 
-## Reproducibility Statement:
-Random Seed, test size, model results, and context was documented throughout our process. This allows for reproducibility to be as great as possible across machines and time.
+### Training Summary
+- *Listeria* data was analyzed in `preparation/listeria_eda.ipynb`.
+- Six model families were tested to evaluate predictive ability (`Run_Models_and_Analyze.ipynb` or `run_models_basic.py`).
+- Top 3 models were selected and tuned using hyperparameters and data engineering.
+- Feature selection used literature review, expert insight, permutation/feature importance, and PCA-based evaluation.
 
-We recognize that API calls, package deployments (as listed in the requirements), and more will change over time, but we hope to diminish the amount of change as much as possble by keeping our work as reproducible as possible.
+### Table 1: Performance Metrics For Best Model Variants (sorted by accuracy)
+| model used | scalar_status | accuracy | precision | recall | f1 |
+|---|---|---|---|---|---|
+| gbm | standard_scalar | 0.941606 | 0.959459 | 0.934211 | 0.946667 |
+| gbm | orig | 0.934307 | 0.946667 | 0.934211 | 0.940397 |
+| neural net | standard_scalar | 0.905109 | 0.956522 | 0.868421 | 0.910345 |
+| svm | standard_scalar | 0.890511 | 0.896104 | 0.907895 | 0.901961 |
+| decision_tree | orig | 0.883212 | 0.905405 | 0.881579 | 0.893333 |
+| decision_tree | standard_scalar | 0.868613 | 0.881579 | 0.881579 | 0.881579 |
+| random_forest | orig | 0.861314 | 0.880000 | 0.868421 | 0.874172 |
+| random_forest | standard_scalar | 0.861314 | 0.880000 | 0.868421 | 0.874172 |
+| logistic regression | standard_scalar | 0.846715 | 0.857143 | 0.868421 | 0.862745 |
+| knn | standard_scalar | 0.839416 | 0.875000 | 0.828947 | 0.851351 |
+| knn | orig | 0.810219 | 0.847222 | 0.802632 | 0.824324 |
+| neural net | orig | 0.715328 | 0.753425 | 0.723684 | 0.738255 |
+| logistic regression | orig | 0.656934 | 0.716418 | 0.631579 | 0.671329 |
+| svm | orig | 0.627737 | 0.676056 | 0.631579 | 0.653061 |
 
-## Design Decisions:
-We chose to keep our preliminary work on evaluating the data (listeria_eda.ipynb) and the model selection (Run_Models_and_Analyze.ipynb) within our repository to show context to our decisions and show our process for the IAFP 2026 Student Competition Hackathon. The process saves the models selected with the file saving_selected_models_for_pipeline.py.
+### Deployment Summary
+- Risk categories were developed through literature review and expert opinion.
+- Decision support outputs were deployed as a web application.
+- API calls are used so growers can input field location and receive location-specific results.
 
-## Citations, Thanks, and Recognitions
-Data was provided by:
-* Liao, J., Guo, X., Weller, D.L. et al. Nationwide genomic atlas of soil-dwelling Listeria reveals effects of selection and population ecology on pangenome evolution. Nat Microbiol 6, 1021–1030 (2021). https://doi.org/10.1038/s41564-021-00935-7
+## Run Preparation Files
+### Exploratory Data Analysis
+Open `preparation/listeria_eda.ipynb` and run all cells with a Python 3.10 interpreter.
 
-Influence from Models Chosen was developed from (and public repository created by):
-* Chenhao Qian, Huan Yang, Jayadev Acharya, Jingqiu Liao, Renata Ivanek, Martin Wiedmann,
-Initializing a Public Repository for Hosting Benchmark Datasets to Facilitate Machine Learning Model Development in Food Safety, Journal of Food Protection, Volume 88, Issue 3, 2025, 100463, ISSN 0362-028X, https://doi.org/10.1016/j.jfp.2025.100463.
+### Save Models Used In Website
+Run:
+- `preparation/saving_selected_models_for_pipeline.py`
 
-API Calls were made to or External Data Downloads were made to:
-* Livneh daily CONUS near-surface gridded meteorological and derived hydrometeorological data (1915-2011). https://psl.noaa.gov/data/gridded/data.livneh.html
-* For geospatial, land coverage data, to be the most comparable to ARC-GIS, we decided to work with the National Land Cover Database by USGS as hosted by the Google Earch Engine. https://www.usgs.gov/node/279743.
+### Modeling Test Process
+Open `preparation/Run_Models_and_Analyze.ipynb` and run all cells with a Python 3.10 interpreter.
 
+## Repository Structure
+- `/data` -> Raw and processed data
+- `/website` -> Website interface
+- `/website/backend/main.py` -> API calls, models, and risk adjustments
+- `/website/backend/models/` -> Saved models
+- `/website/frontend/farm-app/src/` -> Frontend behavior and UI logic
+- `/website/frontend/farm-app/public/` -> Example soil files and static assets
+- `/preparation` -> Exploratory analysis and model selection files
 
-Inspiration for development was prompted by IAFP Student Competition Hackathon 2026.
+## Reproducibility Statement
+Random seed, test size, model results, and process context were documented throughout the project to improve reproducibility across machines and time.
 
+API responses, package versions, and external dependencies can change over time. This repository aims to minimize that impact by documenting dependencies and processing choices.
+
+## Design Decisions
+Preliminary EDA (`listeria_eda.ipynb`) and model selection files (`Run_Models_and_Analyze.ipynb`) are included to show decision context and full process history for the IAFP 2026 Student Competition Hackathon.  
+Selected models are saved by `saving_selected_models_for_pipeline.py`.
+
+## Citations, Thanks, And Recognitions
+Data source:
+- Liao, J., Guo, X., Weller, D.L. et al. Nationwide genomic atlas of soil-dwelling *Listeria* reveals effects of selection and population ecology on pangenome evolution. Nat Microbiol 6, 1021-1030 (2021). https://doi.org/10.1038/s41564-021-00935-7
+
+Modeling influence and repository context:
+- Chenhao Qian, Huan Yang, Jayadev Acharya, Jingqiu Liao, Renata Ivanek, Martin Wiedmann. Initializing a Public Repository for Hosting Benchmark Datasets to Facilitate Machine Learning Model Development in Food Safety. Journal of Food Protection, Volume 88, Issue 3, 2025, 100463. https://doi.org/10.1016/j.jfp.2025.100463
+
+External API / geospatial references:
+- Livneh daily CONUS near-surface gridded meteorological and derived hydrometeorological data (1915-2011): https://psl.noaa.gov/data/gridded/data.livneh.html
+- National Land Cover Database (USGS) via Google Earth Engine: https://www.usgs.gov/node/279743
+
+Inspiration for development was prompted by the IAFP Student Competition Hackathon 2026.
 
 ## License
 This project is licensed under the terms of the Apache 2.0 license.
