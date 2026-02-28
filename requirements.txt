@@ -1,9 +1,8 @@
 pandas
 matplotlib
 seaborn
-sklearn.preprocessing
+scikit-learn
 numpy
-sklearn
 scipy
 pathlib
 numpy
