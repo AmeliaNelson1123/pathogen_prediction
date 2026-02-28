@@ -21,7 +21,7 @@ The objectives of this project are to (i) develop predictive models for Listeria
 
 
 ## Workflow Diagram and Features
-![Workflow Diagram](docs/images/workflow-diagram.png)
+![Workflow Diagram](workflow-diagram.png)
 
 ### Training
 - Listeria data was analyzed using an Exploratory Data Analysis (listeria_eda.ipynb)
