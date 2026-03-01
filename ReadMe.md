@@ -127,7 +127,7 @@ python3 -m venv .venv
 ```
 Example 2:
 ``` bash
-py -3.10 -m venv .venv
+py -3.13 -m venv .venv
 ```
 
 ## Google Earth Engine Setup
@@ -279,7 +279,7 @@ Use `CSV (comma delimited)` format.
 
 ## Run Preparation Files
 ### Exploratory Data Analysis
-Open `preparation/listeria_eda.ipynb` and run all cells with a Python 3.10 interpreter.
+Open `preparation/listeria_eda.ipynb` and run all cells with a Python 3.10 to 3.13 interpreter.
 
 ### Save Models Used In Website
 Run:
@@ -308,19 +308,19 @@ Selected models are saved by `preparation/saving_selected_models_for_pipeline.py
 
 ## Citations, Thanks, And Recognitions
 Data source:
-- J. Liao et al., ‘Nationwide genomic atlas of soil-dwelling Listeria reveals effects of selection and population ecology on pangenome evolution’, Nat. Microbiol., vol. 6, no. 8, pp. 1021–1030, 2021, doi: 10.1038/s41564-021-00935-7. 
+- Liao J, Guo X, Weller DL, Pollak S, Buckley DH, Wiedmann M, Cordero OX. 2021. Nationwide genomic atlas of soil-dwelling Listeria reveals effects of selection and population ecology on pangenome evolution. Nat Microbiol 6:1021–1030. 
 
 Modeling influence and repository context:
-- C. Qian, H. Yang, J. Acharya, J. Liao, R. Ivanek, and M. Wiedmann, ‘Initializing a Public Repository for Hosting Benchmark Datasets to Facilitate Machine Learning Model Development in Food Safety’, J. Food Prot., vol. 88, no. 3, p. 100463, 2025, doi: 10.1016/j.jfp.2025.100463. 
+- Qian C, Yang H, Acharya J, Liao J, Ivanek R, Wiedmann M. 2025. Initializing a Public Repository for Hosting Benchmark Datasets to Facilitate Machine Learning Model Development in Food Safety. J Food Prot 88:100463.  
 
 External API / geospatial references:
-- B. Livneh et al., ‘A Long-Term Hydrologically Based Dataset of Land Surface Fluxes and States for the Conterminous United States: Update and Extensions’, J. Clim., vol. 26, pp. 9384–9392, 2013, doi: 10.1175/JCLI-D-12-00508.1: CONUS https://psl.noaa.gov/data/gridded/data.livneh.html
-- United States Geological Survey, ‘National Land Cover Database (NLCD)’. Accessed: Feb. 27, 2026. Available: https://www.usgs.gov/node/279743 
+- Livneh B, Rosenberg EA, Lin C, Nijssen B, Mishra V., Andreadis KM, Maurer EP, Lettenmaier DP. 2013. A Long-Term Hydrologically Based Dataset of Land Surface Fluxes and States for the Conterminous United States: Update and Extensions. J Clim 26:9384–9392. CONUS https://psl.noaa.gov/data/gridded/data.livneh.html
+- United States Geological Survey. 2016. National Land Cover Database (NLCD). https://www.usgs.gov/node/279743. Retrieved 27 February 2026. 
 
 Probability and odds math was derrived from these references:
-- L. Guillier et al., ‘A Quantitative Risk Assessment Model for Listeria monocytogenes in Ready-to-Eat Cantaloupe’, Foods, vol. 14, no. 13, Jul. 2025, doi: 10.3390/foods14132212. 
-- Weller D, Wiedmann M, Strawn. 'Spatial and Temporal Factors Associated with an Increased Prevalence of Listeria monocytogenes in Spinach Fields in New York State', Applied and Environmental Microbiology, Aug. 2015: https://doi.org/10.1128/AEM.01286-15
-- Strawn LK, Gröhn YT, Warchocki S, Worobo RW, Bihn EA, Wiedmann M. 'Risk Factors Associated with Salmonella and Listeria monocytogenes Contamination of Produce Fields', Applied Environmental Microbiology, Nov. 2013:.https://doi.org/10.1128/AEM.02831-13
+- Guillier L, Gonzales-Barron U, Pouillot R, De Oliveira Mota J, Allende A, Kovacevic J, Guldimann C, Fazil A, Al-Qadiri H, Dong Q, Hasegawa A, Cadavez V, Sanaa M. 2025. A Quantitative Risk Assessment Model for Listeria monocytogenes in Ready-to-Eat Cantaloupe. Foods 14. 
+- Weller D, Wiedmann M, Strawn LK. 2015. Spatial and temporal factors associated with an increased prevalence of Listeria monocytogenes in spinach fields in New York State. Appl Environ Microbiol 81:6059–6069.
+- Strawn LK, Gröhn YT, Warchocki S, Worobo RW, Bihn EA, Wiedmann M. 2013. Risk factors associated with Salmonella and Listeria monocytogenes contamination of produce fields. Appl Environ Microbiol 79:7618–7627. 
 
 Inspiration for development was prompted by the IAFP AI Student Competition 2026.
 
