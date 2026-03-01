@@ -143,6 +143,10 @@ Notes:
 - Keys are ignored by `.gitignore` and should never be committed.
 
 ### Option 2: Create Your Own Service Account And Key
+REQUIREMENTS: Google Earth Engine Account, and Node.js
+
+STEP 1: 
+
 Official setup docs:
 - Earth Engine service accounts: https://developers.google.com/earth-engine/guides/service_account
 - Earth Engine access control and roles: https://developers.google.com/earth-engine/guides/access_control
@@ -158,6 +162,52 @@ Minimum service-account roles for this app's read-only Earth Engine usage:
 Roles typically needed by the human/admin creating service accounts and keys:
 - `roles/iam.serviceAccountAdmin`
 - `roles/iam.serviceAccountKeyAdmin`
+
+
+STEP 2:
+
+Once the service account is made, create and download a key.
+
+STEP 3:
+
+Rename the downloaded file to `gee-service-account-key.json`
+
+STEP 4:
+
+Copy the `gee-service-account-key.json` into the folder `competition_secrets` such that `competition_secrets/gee-service-account-key.json`.
+
+STEP 5
+
+Edit line 208, and 211 in `website/backend/main.py` according to the following.
+
+Line 208, change
+`` website/backend/main.py
+EE_PROJECT = os.getenv("EE_PROJECT", "listeria-prediction-tool")
+`` 
+to 
+`` website/backend/main.py
+EE_PROJECT = os.getenv("EE_PROJECT", "your-google-earth-engine-project-name")
+``
+
+Line 211, change
+`` website/backend/main.py
+    "temp-for-iafp-competition@listeria-prediction-tool.iam.gserviceaccount.com",
+`` 
+to 
+`` website/backend/main.py
+    "your-service-account-email@your-google-earth-engine-project-name.iam.gserviceaccount.com",
+`` 
+
+STEP 6
+
+Create 2 terminals (one for the backend, and one for the frontend)
+- In the backend terminal, run (Windows version) `powershell -ExecutionPolicy Bypass -File .\setup_competition.ps1` or (Mac version) `./setup_competition.sh`.
+- In the frontend run the following in your terminal
+`` bash
+cd website/frontend/farm-app
+rm -rf
+npm run build
+``
 
 ## How To Use The Website
 Run one of the following:
