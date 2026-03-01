@@ -29,21 +29,21 @@ Last edit date: 02/28/2026
 Development of a decision support tool for farmers to identify *Listeria* species (spp.) risk in soil.
 
 ## Problem Description
-Soil serves as an environmental reservoir for *Listeria* spp., including pathogenic strains such as *Listeria* monocytogenes, which can contaminate fresh produce via preharvest routes such as irrigation runoff, animal intrusion, and rain splash. Produce growers have been facing the need to implement proactive risk management, particularly under frameworks such as the Food Safety Modernization Act (FSMA). However, current soil testing strategies are:
+Soil serves as an environmental reservoir for *Listeria* spp., including pathogenic strains such as *Listeria monocytogenes*, which can contaminate fresh produce via preharvest routes, such as irrigation runoff, animal intrusion, and rain splash ​(1, 2)​. Produce growers have been facing the need to implement proactive risk management, particularly under frameworks such as the Food Safety Modernization Act (FSMA). However, current soil testing strategies are
 1. largely reactive rather than predictive,
-2. resource intensive, and
-3. lacking standard guidance.
+2. resource intensive,
+3. lack standard guidance. 
 
-While growers often collect data on soil properties (for example pH, nutrients, and organic matter), these data are not routinely leveraged to assess microbial risk. Therefore, a data-driven approach that integrates these data to predict *Listeria* presence would allow for:
-1. Risk-based soil sampling,
-2. Development of targeted interventions, and
-3. Efficient allocation of resources for testing.
+While growers often collect data on soil properties (e.g., pH, nutrients, organic matter), these data are not routinely leveraged to assess microbial risk. Therefore, a data-driven approach that integrates these data to predict *Listeria* presence would allow for
+1. risk-based soil sampling,
+2. development of targeted interventions,
+3. efficient allocation of resources for testing. 
 
 ## Objectives
-The objectives of this project are to:
-1. Develop predictive models for *Listeria* presence in soil,
-2. Evaluate model robustness and generalizability, and
-3. Develop a grower-friendly decision-support tool.
+To
+1. develop predictive models for *Listeria* presence in soil,
+2. evaluate model robustness and generalizability
+3. develop a grower-friendly decision-support tool. 
 
 ## Quick Start to Run the Website
 ### Requirements
@@ -308,19 +308,19 @@ Selected models are saved by `preparation/saving_selected_models_for_pipeline.py
 
 ## Citations, Thanks, And Recognitions
 Data source:
-- Liao J, Guo X, Weller DL, Pollak S, Buckley DH, Wiedmann M, Cordero OX. 2021. Nationwide genomic atlas of soil-dwelling Listeria reveals effects of selection and population ecology on pangenome evolution. Nat Microbiol 6:1021–1030. 
+- Liao J, Guo X, Weller DL, Pollak S, Buckley DH, Wiedmann M, Cordero OX. 2021. Nationwide genomic atlas of soil-dwelling *Listeria* reveals effects of selection and population ecology on pangenome evolution. Nat Microbiol 6:1021–1030. 
 
 Modeling influence and repository context:
 - Qian C, Yang H, Acharya J, Liao J, Ivanek R, Wiedmann M. 2025. Initializing a Public Repository for Hosting Benchmark Datasets to Facilitate Machine Learning Model Development in Food Safety. J Food Prot 88:100463.  
 
 External API / geospatial references:
-- Livneh B, Rosenberg EA, Lin C, Nijssen B, Mishra V., Andreadis KM, Maurer EP, Lettenmaier DP. 2013. A Long-Term Hydrologically Based Dataset of Land Surface Fluxes and States for the Conterminous United States: Update and Extensions. J Clim 26:9384–9392. CONUS https://psl.noaa.gov/data/gridded/data.livneh.html
+- Zippenfenig, P. Open-Meteo.com Weather API. https://open-meteo.com/
 - United States Geological Survey. 2016. National Land Cover Database (NLCD). https://www.usgs.gov/node/279743. Retrieved 27 February 2026. 
 
 Probability and odds math was derrived from these references:
-- Guillier L, Gonzales-Barron U, Pouillot R, De Oliveira Mota J, Allende A, Kovacevic J, Guldimann C, Fazil A, Al-Qadiri H, Dong Q, Hasegawa A, Cadavez V, Sanaa M. 2025. A Quantitative Risk Assessment Model for Listeria monocytogenes in Ready-to-Eat Cantaloupe. Foods 14. 
-- Weller D, Wiedmann M, Strawn LK. 2015. Spatial and temporal factors associated with an increased prevalence of Listeria monocytogenes in spinach fields in New York State. Appl Environ Microbiol 81:6059–6069.
-- Strawn LK, Gröhn YT, Warchocki S, Worobo RW, Bihn EA, Wiedmann M. 2013. Risk factors associated with Salmonella and Listeria monocytogenes contamination of produce fields. Appl Environ Microbiol 79:7618–7627. 
+- Guillier L, Gonzales-Barron U, Pouillot R, De Oliveira Mota J, Allende A, Kovacevic J, Guldimann C, Fazil A, Al-Qadiri H, Dong Q, Hasegawa A, Cadavez V, Sanaa M. 2025. A Quantitative Risk Assessment Model for *Listeria* monocytogenes in Ready-to-Eat Cantaloupe. Foods 14. 
+- Weller D, Wiedmann M, Strawn LK. 2015. Spatial and temporal factors associated with an increased prevalence of *Listeria* monocytogenes in spinach fields in New York State. Appl Environ Microbiol 81:6059–6069.
+- Strawn LK, Gröhn YT, Warchocki S, Worobo RW, Bihn EA, Wiedmann M. 2013. Risk factors associated with Salmonella and *Listeria monocytogenes* contamination of produce fields. Appl Environ Microbiol 79:7618–7627. 
 
 Inspiration for development was prompted by the IAFP AI Student Competition 2026.
 
