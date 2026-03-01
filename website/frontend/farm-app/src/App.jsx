@@ -154,7 +154,7 @@ function App() {
 
       const parsedForecastDate = parseForecastDate(forecastDateInput);
       if (!parsedForecastDate) {
-        setResult("Error: Enter forecast date as MM/DD/YYYY.");
+        setResult("Error: The Inputed forcast date must be in MM/DD/YYYY format. For example, Febuary 21, 2026 is inputted as 02/21/2026");
         setLoading(false);
         setRequestProgress(0);
         setRequestStage("Invalid date format");

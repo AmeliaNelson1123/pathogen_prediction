@@ -1,4 +1,4 @@
-# Decision Support Tool for Farmers to Identify *Listeria* species Risk
+# Decision Support Tool for Farmers to Identify *Listeria* species Risk in Soil
 Project for the IAFP Student Competition.
 
 Last edit date: 02/28/2026
@@ -29,24 +29,23 @@ Last edit date: 02/28/2026
 Development of a decision support tool for farmers to identify *Listeria* species (spp.) risk in soil.
 
 ## Problem Description
-Soil serves as an environmental reservoir for *Listeria* spp., including pathogenic strains such as *Listeria* monocytogenes, which can contaminate fresh produce via preharvest routes such as irrigation runoff, animal intrusion, and rain splash (2, 3). Produce growers have been facing the need to implement proactive risk management, particularly under frameworks such as the Food Safety Modernization Act (FSMA). However, current soil testing strategies are:
+Soil serves as an environmental reservoir for *Listeria* spp., including pathogenic strains such as *Listeria* monocytogenes, which can contaminate fresh produce via preharvest routes such as irrigation runoff, animal intrusion, and rain splash. Produce growers have been facing the need to implement proactive risk management, particularly under frameworks such as the Food Safety Modernization Act (FSMA). However, current soil testing strategies are:
 1. largely reactive rather than predictive,
 2. resource intensive, and
-3. lacking standard guidance (1, 4).
+3. lacking standard guidance.
 
 While growers often collect data on soil properties (for example pH, nutrients, and organic matter), these data are not routinely leveraged to assess microbial risk. Therefore, a data-driven approach that integrates these data to predict *Listeria* presence would allow for:
-1. risk-based soil sampling,
-2. development of targeted interventions, and
-3. efficient allocation of resources for testing.
+1. Risk-based soil sampling,
+2. Development of targeted interventions, and
+3. Efficient allocation of resources for testing.
 
 ## Objectives
 The objectives of this project are to:
-1. develop predictive models for *Listeria* presence in soil,
-2. identify environmental drivers of *Listeria* risk,
-3. evaluate model robustness and generalizability, and
-4. develop a grower-friendly decision-support tool.
+1. Develop predictive models for *Listeria* presence in soil,
+2. Evaluate model robustness and generalizability, and
+3. Develop a grower-friendly decision-support tool.
 
-## Quick Start
+## Quick Start to Run the Website
 ### Requirements
 - Python version: 3.10 to 3.13
 - Required website dependencies are listed in `website/requirements.txt`
@@ -69,6 +68,7 @@ Use this if you have a shared competition Earth Engine key file.
 
 1. Copy and paste the json file in the `competition_secrets` folder like the following:
    - `competition_secrets/gee-service-account-key.json`
+   - For the IAFP AI Competition Users, the link to the recommended JSON is provided in the report.
 2. Open Powershell, or in Visual Studio, open a Powershell terminal.
 3. cd into your repository (i.e. cd /path/to/pathogen_prediction)
 4. From repository root, run:
@@ -88,6 +88,7 @@ Use this if you have a shared competition Earth Engine key file.
 
 1. Copy and paste the json file in the `competition_secrets` folder like the following:
    - `competition_secrets/gee-service-account-key.json`
+   - For the IAFP AI Competition Users, the link to the recommended JSON is provided in the report.
 2. Open Terminal (App on Mac computer). (Cmd + Space, type Terminal, Enter)
 3. cd into your repository (i.e. cd /path/to/pathogen_prediction)
 4. From repository root, run:
@@ -97,7 +98,7 @@ chmod +x ./setup_competition.sh
 ```
 5. When you are done running the website or to refresh it, click your terminal, then press "CTRL" + "c".
 
-## Run The Website (Manual Fallback)
+## Manual Fallback Version to Run the Website
 ### Windows (PowerShell), from project root
 ```powershell
 cd website
@@ -138,6 +139,7 @@ No change is needed from the automatic startup options referenced above:
 - [Competition Recommended Startup (macoslinux)](#competition-recommended-startup-macoslinux)
 
 Notes:
+- This option is only for people who have access to the Google Drive Link provided by the owner of this database.
 - End users do not enter secrets in the web interface.
 - End users do not need to edit `main.py`.
 - Keys are ignored by `.gitignore` and should never be committed.
@@ -164,19 +166,19 @@ Roles typically needed by the human/admin creating service accounts and keys:
 - `roles/iam.serviceAccountKeyAdmin`
 
 
-STEP 2:
+**STEP 2:**
 
 Once the service account is made, create and download a key.
 
-STEP 3:
+**STEP 3:**
 
 Rename the downloaded file to `gee-service-account-key.json`
 
-STEP 4:
+**STEP 4:**
 
 Copy the `gee-service-account-key.json` into the folder `competition_secrets` such that `competition_secrets/gee-service-account-key.json`.
 
-STEP 5
+**STEP 5:**
 
 Edit line 208, and 211 in `website/backend/main.py` according to the following.
 
@@ -198,16 +200,19 @@ to
     "your-service-account-email@your-google-earth-engine-project-name.iam.gserviceaccount.com",
 `` 
 
-STEP 6
+**STEP 6**
 
 Create 2 terminals (one for the backend, and one for the frontend)
 - In the backend terminal, run (Windows version) `powershell -ExecutionPolicy Bypass -File .\setup_competition.ps1` or (Mac version) `./setup_competition.sh`.
 - In the frontend run the following in your terminal
 `` bash
 cd website/frontend/farm-app
-rm -rf
 npm run build
 ``
+
+STEP 7: 
+
+Run the steps as noted in quick start.
 
 ## How To Use The Website
 Run one of the following:
@@ -244,7 +249,7 @@ Use `CSV (comma delimited)` format.
 
 ### Training Summary
 - *Listeria* data was analyzed in `preparation/listeria_eda.ipynb`.
-- Seven model families were tested to evaluate predictive ability (`preparation/Run_and_Test_Models.ipynb`, `preparation/Analyze_Models.ipynb`.
+- Seven model families were tested to evaluate predictive ability (`preparation/Run_and_Test_Models.ipynb`, `preparation/Analyze_Models.ipynb`).
 - Top 3 models were selected and tuned using hyperparameters and data engineering.
 - Feature selection used literature review, expert insight, permutation/feature importance, and PCA-based evaluation.
 
@@ -298,21 +303,26 @@ Random seed, test size, model results, and process context were documented throu
 API responses, package versions, and external dependencies can change over time. This repository aims to minimize that impact by documenting dependencies and processing choices.
 
 ## Design Decisions
-Preliminary EDA (`preparation/listeria_eda.ipynb`) and model testing (`Run_and_Test_Models.ipynb`) and selection (`preparation/Analyze_Models.ipynb`) are included to show decision context and full process history for the IAFP 2026 Student Competition Hackathon.  
+Preliminary EDA (`preparation/listeria_eda.ipynb`) and model testing (`Run_and_Test_Models.ipynb`) and selection (`preparation/Analyze_Models.ipynb`) are included to show decision context and full process history for the IAFP 2026 AI Student Competition.  
 Selected models are saved by `preparation/saving_selected_models_for_pipeline.py`.
 
 ## Citations, Thanks, And Recognitions
 Data source:
-- Liao, J., Guo, X., Weller, D.L. et al. Nationwide genomic atlas of soil-dwelling *Listeria* reveals effects of selection and population ecology on pangenome evolution. Nat Microbiol 6, 1021-1030 (2021). https://doi.org/10.1038/s41564-021-00935-7
+- J. Liao et al., ‘Nationwide genomic atlas of soil-dwelling Listeria reveals effects of selection and population ecology on pangenome evolution’, Nat. Microbiol., vol. 6, no. 8, pp. 1021–1030, 2021, doi: 10.1038/s41564-021-00935-7. 
 
 Modeling influence and repository context:
-- Chenhao Qian, Huan Yang, Jayadev Acharya, Jingqiu Liao, Renata Ivanek, Martin Wiedmann. Initializing a Public Repository for Hosting Benchmark Datasets to Facilitate Machine Learning Model Development in Food Safety. Journal of Food Protection, Volume 88, Issue 3, 2025, 100463. https://doi.org/10.1016/j.jfp.2025.100463
+- C. Qian, H. Yang, J. Acharya, J. Liao, R. Ivanek, and M. Wiedmann, ‘Initializing a Public Repository for Hosting Benchmark Datasets to Facilitate Machine Learning Model Development in Food Safety’, J. Food Prot., vol. 88, no. 3, p. 100463, 2025, doi: 10.1016/j.jfp.2025.100463. 
 
 External API / geospatial references:
-- Livneh daily CONUS near-surface gridded meteorological and derived hydrometeorological data (1915-2011): https://psl.noaa.gov/data/gridded/data.livneh.html
-- National Land Cover Database (USGS) via Google Earth Engine: https://www.usgs.gov/node/279743
+- B. Livneh et al., ‘A Long-Term Hydrologically Based Dataset of Land Surface Fluxes and States for the Conterminous United States: Update and Extensions’, J. Clim., vol. 26, pp. 9384–9392, 2013, doi: 10.1175/JCLI-D-12-00508.1: CONUS https://psl.noaa.gov/data/gridded/data.livneh.html
+- United States Geological Survey, ‘National Land Cover Database (NLCD)’. Accessed: Feb. 27, 2026. Available: https://www.usgs.gov/node/279743 
 
-Inspiration for development was prompted by the IAFP Student Competition Hackathon 2026.
+Probability and odds math was derrived from these references:
+- L. Guillier et al., ‘A Quantitative Risk Assessment Model for Listeria monocytogenes in Ready-to-Eat Cantaloupe’, Foods, vol. 14, no. 13, Jul. 2025, doi: 10.3390/foods14132212. 
+- Weller D, Wiedmann M, Strawn. 'Spatial and Temporal Factors Associated with an Increased Prevalence of Listeria monocytogenes in Spinach Fields in New York State', Applied and Environmental Microbiology, Aug. 2015: https://doi.org/10.1128/AEM.01286-15
+- Strawn LK, Gröhn YT, Warchocki S, Worobo RW, Bihn EA, Wiedmann M. 'Risk Factors Associated with Salmonella and Listeria monocytogenes Contamination of Produce Fields', Applied Environmental Microbiology, Nov. 2013:.https://doi.org/10.1128/AEM.02831-13
+
+Inspiration for development was prompted by the IAFP AI Student Competition 2026.
 
 ## License
 This project is licensed under the terms of the Apache 2.0 license.

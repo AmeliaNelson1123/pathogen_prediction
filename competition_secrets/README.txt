@@ -11,4 +11,4 @@ Or on macOS/Linux:
 chmod +x ./setup_competition.sh
 ./setup_competition.sh
 
-Do not commit JSON keys to git.
+Do not commit JSON keys to git, otherwise they will be deactivated.

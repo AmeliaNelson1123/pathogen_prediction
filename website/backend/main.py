@@ -672,13 +672,13 @@ def apply_odds_multiplier(p: np.ndarray, multiplier: float) -> np.ndarray:
     # making sure no 0s
     clipped = np.clip(p.astype(float), 1e-6, 1 - 1e-6)
     # getting odds ratio with safe value
-    odds = clipped / (1.0 - clipped)
+    # prob_mult = multiplier / (1.0 + multiplier)
 
-    # multiplying the odds (adjusting the odds because adjusting probabilities close to 0 and close to 1 will cause problems)
-    adjusted_odds = odds * multiplier
+    # getting the probability 
+    adj_prob = clipped * multiplier / (1.0 - clipped + (clipped * multiplier))
 
     # returning the probability!
-    return adjusted_odds / (1.0 + adjusted_odds)
+    return adj_prob
 
 # place to make sure actually grabbing the right index... otherwise buggy, and sometimes pulls the wrong index
 def get_binary_class_indices(model: Any, proba: np.ndarray, model_type: str) -> tuple[int, int]:
