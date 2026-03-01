@@ -1,4 +1,4 @@
-# Decision Support Tool for Farmers to Identify *Listeria* spp. Risk
+# Decision Support Tool for Farmers to Identify *Listeria* species Risk
 Project for the IAFP Student Competition.
 
 Last edit date: 02/28/2026
@@ -26,7 +26,7 @@ Last edit date: 02/28/2026
 - [License](#license)
 
 ## Goal
-Development of a decision support tool for farmers to identify *Listeria* risk in soil.
+Development of a decision support tool for farmers to identify *Listeria* species (spp.) risk in soil.
 
 ## Problem Description
 Soil serves as an environmental reservoir for *Listeria* spp., including pathogenic strains such as *Listeria* monocytogenes, which can contaminate fresh produce via preharvest routes such as irrigation runoff, animal intrusion, and rain splash (2, 3). Produce growers have been facing the need to implement proactive risk management, particularly under frameworks such as the Food Safety Modernization Act (FSMA). However, current soil testing strategies are:
@@ -53,7 +53,7 @@ The objectives of this project are to:
 - RAM: suggested at least 16 GB for model work
 - Node.js is required for future frontend developers, not required for website users/testers
 
-### Get The Code
+### Retrieving The Code
 ```bash
 git clone https://github.com/AmeliaNelson1123/pathogen_prediction.git
 cd pathogen_prediction
@@ -244,7 +244,7 @@ Use `CSV (comma delimited)` format.
 
 ### Training Summary
 - *Listeria* data was analyzed in `preparation/listeria_eda.ipynb`.
-- Seven model families were tested to evaluate predictive ability (`Run_and_Test_Models.ipynb`, `Analyze_Models.ipynb` or `run_models_basic.py`).
+- Seven model families were tested to evaluate predictive ability (`preparation/Run_and_Test_Models.ipynb`, `preparation/Analyze_Models.ipynb`.
 - Top 3 models were selected and tuned using hyperparameters and data engineering.
 - Feature selection used literature review, expert insight, permutation/feature importance, and PCA-based evaluation.
 
@@ -267,6 +267,7 @@ Use `CSV (comma delimited)` format.
 | svm | orig | 0.627737 | 0.676056 | 0.631579 | 0.653061 |
 
 ### Deployment Summary
+- Top models were saved in `preparation/saving_selected_models_for_pipeline.py`
 - Risk categories were developed through literature review and expert opinion.
 - Decision support outputs were deployed as a web application.
 - API calls are used so growers can input field location and receive location-specific results.
@@ -297,8 +298,8 @@ Random seed, test size, model results, and process context were documented throu
 API responses, package versions, and external dependencies can change over time. This repository aims to minimize that impact by documenting dependencies and processing choices.
 
 ## Design Decisions
-Preliminary EDA (`listeria_eda.ipynb`) and model selection files (`Run_Models_and_Analyze.ipynb`) are included to show decision context and full process history for the IAFP 2026 Student Competition Hackathon.  
-Selected models are saved by `saving_selected_models_for_pipeline.py`.
+Preliminary EDA (`preparation/listeria_eda.ipynb`) and model testing (`Run_and_Test_Models.ipynb`) and selection (`preparation/Analyze_Models.ipynb`) are included to show decision context and full process history for the IAFP 2026 Student Competition Hackathon.  
+Selected models are saved by `preparation/saving_selected_models_for_pipeline.py`.
 
 ## Citations, Thanks, And Recognitions
 Data source:
