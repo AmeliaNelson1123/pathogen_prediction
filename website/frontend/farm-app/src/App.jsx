@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { CircleMarker, MapContainer, TileLayer, useMapEvents } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import "./App.css";
@@ -34,6 +34,18 @@ const EXAMPLE_SOIL_FILES = [
   // { label: "Sample 6", href: "/examples/example-6-soil.csv" },
   // { label: "Sample 7", href: "/examples/example-7-soil.csv" },
 ];
+
+function renderWithItalicListeria(text) {
+  const lines = String(text).split("\n");
+  return lines.map((line, lineIndex) => (
+    <Fragment key={`line-${lineIndex}`}>
+      {line.split(/(Listeria)/gi).map((part, partIndex) =>
+        /^listeria$/i.test(part) ? <em key={`part-${partIndex}`}>{part}</em> : part
+      )}
+      {lineIndex < lines.length - 1 ? <br /> : null}
+    </Fragment>
+  ));
+}
 
 {/*part where it looks for clicks on the map, and reacts by getting the longitude and latitude selected*/}
 function LocationPicker({ setLatInput, setLonInput }) {
@@ -596,7 +608,7 @@ function App() {
           {/*results section*/}
           <div className="result-box">
             <h3>Result</h3>
-            <p>{result || "No result yet."}</p>
+            <p>{result ? renderWithItalicListeria(result) : "No result yet."}</p>
           </div>
         </section>
       </div>

@@ -67,14 +67,15 @@ pip install -r requirements.txt
 ### Competition Recommended Startup (Windows), after cloning the repository
 Use this if you have a shared competition Earth Engine key file.
 
-1. Place key at:
+1. Copy and paste the json file in the `competition_secrets` folder like the following:
    - `competition_secrets/gee-service-account-key.json`
-2. Open Powershell 
-3. cd into your repository (i.e. cd /path/to/pathogen_prediction_comp)
+2. Open Powershell, or in Visual Studio, open a Powershell terminal.
+3. cd into your repository (i.e. cd /path/to/pathogen_prediction)
 4. From repository root, run:
 ```powershell
 powershell -ExecutionPolicy Bypass -File .\setup_competition.ps1
 ```
+5. When you are done running the website or to refresh it, click your terminal, then press "CTRL" + "c".
 
 The script:
 - copies the key to `website/backend/gee-service-account-key.json` for runtime,
@@ -85,15 +86,16 @@ The script:
 ### Competition Recommended Startup (macOS/Linux), after cloning the repository
 Use this if you have a shared competition Earth Engine key file.
 
-1. Place key at:
+1. Copy and paste the json file in the `competition_secrets` folder like the following:
    - `competition_secrets/gee-service-account-key.json`
 2. Open Terminal (App on Mac computer). (Cmd + Space, type Terminal, Enter)
-3. cd into your repository (i.e. cd /path/to/pathogen_prediction_comp)
-2. From repository root, run:
+3. cd into your repository (i.e. cd /path/to/pathogen_prediction)
+4. From repository root, run:
 ```bash
 chmod +x ./setup_competition.sh
 ./setup_competition.sh
 ```
+5. When you are done running the website or to refresh it, click your terminal, then press "CTRL" + "c".
 
 ## Run The Website (Manual Fallback)
 ### Windows (PowerShell), from project root

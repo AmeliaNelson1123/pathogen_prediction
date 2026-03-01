@@ -53,7 +53,7 @@ try {
     }
 
     Write-Host ""
-    Write-Host "Starting website backend at http://127.0.0.1:8000" -ForegroundColor Green
+    Write-Host "Starting website backend, and will be shown once loaded in at http://127.0.0.1:8000. NOT READY YET" -ForegroundColor Green
     & $venvPython -m uvicorn backend.main:app --host 127.0.0.1 --port 8000
 }
 finally {

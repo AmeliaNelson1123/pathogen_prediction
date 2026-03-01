@@ -47,5 +47,5 @@ if [[ "$SKIP_INSTALL" != "1" ]]; then
 fi
 
 echo
-echo "Starting website backend at http://127.0.0.1:8000"
+echo "Starting website backend, and will be shown once loaded in at http://127.0.0.1:8000. NOT READY YET"
 exec "$venv_python" -m uvicorn backend.main:app --host 127.0.0.1 --port 8000

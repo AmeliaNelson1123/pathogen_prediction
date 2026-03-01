@@ -126,6 +126,11 @@
 .hero-collapsible .how-to-title {
   list-style: none;
   cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.2rem 0;
 }
 
 .hero-collapsible .how-to-title::-webkit-details-marker {
@@ -133,13 +138,21 @@
 }
 
 .hero-collapsible .how-to-title::after {
-  content: " +";
+  content: "▸";
   color: var(--hint);
   font-weight: 700;
+  font-size: 1.6rem;
+  line-height: 1;
+  min-width: 1rem;
+  text-align: center;
+  opacity: 0.8;
+  transition: transform 140ms ease, opacity 140ms ease;
 }
 
 .hero-collapsible[open] .how-to-title::after {
-  content: " -";
+  content: "▸";
+  transform: rotate(90deg);
+  opacity: 1;
 }
 
 .hero-collapsible p,

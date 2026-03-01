@@ -1,6 +1,7 @@
 import io
 import json
 import os
+import warnings
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from time import perf_counter
@@ -21,6 +22,18 @@ import numpy as np
 # -------------------------------------
 # --- Global variables  and Set Up ----
 # -------------------------------------
+
+# Prefer OS trust store when available (helps macOS + managed-network TLS cert chains).
+try:
+    import truststore
+
+    truststore.inject_into_ssl()
+except Exception as exc:
+    warnings.warn(
+        f"truststore not active; TLS validation will use default cert bundle: {exc}",
+        RuntimeWarning,
+        stacklevel=2,
+    )
 
 # starting an call to start web interface
 app = FastAPI()
@@ -409,7 +422,7 @@ def get_open_meteo_daily(lat: float, lon: float, target_date: date) -> dict[str,
     except URLError as exc:
         raise HTTPException(
             status_code=502,
-            detail=f"The Open-Meteo request failed: {exc.reason}. It seems like there was a proble with the weather API. Try again in a few minutes, or select the model to run with soil only",
+            detail=f"The Open-Meteo request failed: {exc.reason}. It seems like there was a problem with the weather API. Try again in a few minutes, or select the model to run with soil data only",
         ) from exc
     except Exception as exc:
         raise HTTPException(
@@ -782,7 +795,7 @@ async def predict(
     # automatically working with if there is a csv inputed or not and running with and without soil
     if longlat_mode == "soil_only":
         # adding message to say input long for better model accuracy
-        add_message.append("Add Longitude, Latitude, and Date information to improve model (and select Soil and Longitude and Latitude Model) and more accurately assess your risk of Listeria. (Coordinates and dates will automatically import the elevation and weather data which will improve the model's ability to access the risk of Listeria)")
+        add_message.append("Add the coordinates and the date information to improve the model (and select Soil and Longitude and Latitude Model) and to more accurately assess the risk of Listeria presence in soil. (Coordinates and dates will automatically import the elevation and weather data which will improve the model's accuracy).")
 
         # attempting to read in the csv
         try:
@@ -798,14 +811,14 @@ async def predict(
                 df = df.drop(columns=['Unnamed: 0'])
         except Exception as exc:
             raise HTTPException(
-                status_code=400, detail=f"We could not correctly process your CSV. Likely, there is a problem with the column name. Please use column names that match the Sample CSVs: \nError with: {exc}"
+                status_code=400, detail=f"We could not correctly process your CSV. Likely, there is a problem with the column name. Please use column names that match the Example CSVs: \nError with: {exc}"
             ) from exc
         # making sure the longitude and latitude is inputed 
         # (because cannot run on no data, so either enviro from long/lat or soil is required)
         model_variant = "soil_only"
     elif longlat_mode == "longlat_only":
         # adding message to say input long for better model accuracy
-        add_message.append("Add Soil CSV information to improve model (and select the Soil and Longitude and Latitude Model), and more accurately assess your risk of Listeria.")
+        add_message.append("Add Soil CSV to improve the model (and select the Soil and Longitude and Latitude Model) and to more accurately assess the risk of Listeria presence in soil.")
 
         # handeling api calls to get data with long and lat
         dict_df = {
@@ -1013,31 +1026,31 @@ async def predict(
     to_return_risk_class = risk_class_from_probability(displayed_result)
     # adding messages to provide feedback and hopefully helpful remarks
     if irrigation_mode == "24_rain_window":
-        add_message.append("Irrigation/rain in the last 24 hours raises risk significantly. Consider additional verification, such as Listeria testing, before harvest. Make sure to clean equipment and consider waiting at least 144 hours before harvesting.")
+        add_message.append("Irrigation or rain in the last 24 hours may increase contamination risk. Consider testing the irrigation water for Listeria and identify spots in the field that have standing water for testing. Consider waiting at least 144 hours before harvesting.")
     elif irrigation_mode in ("48_rain_window", "72_rain_window"):
-        add_message.append("Recent irrigation/rain can increase risk. Consider additional verification, such as Listeria testing, before harvest. Make sure to clean equipment and consider waiting at least 144 hours before harvesting.")
-
+        add_message.append("Recent irrigation or rain may increase contamination risk. Consider testing the irrigation water for Listeria and identify spots in the field that have standing water for testing. Consider waiting at least 144 hours before harvesting.")
+        
     if wildlife_mode == "high_risk_wildlife":
-        add_message.append("Active wildlife traffic increases contamination risk. It is recommend to create a buffer zone, exclude visibly affected zones, increase field scouting, and/or strengthen deterrents/barriers.")
+        add_message.append("Active wildlife traffic may increase contamination risk. It is recommended to have a buffer zone, exclude visibly affected zones, increase field scouting, and/or strengthen deterrents and barriers.")
     elif wildlife_mode == "moderate_risk_wildlife":
-        add_message.append("Wildlife evidence suggests moderate risk. Intensify monitoring and create a buffer zone, and/or strengthen detterents/barriers.")
+        add_message.append("Wildlife traffic may increase contamination risk. Intensify monitoring and have a buffer zone, and/or strengthen detterents and barriers.")
     
     if manure_mode == "manure_within_365_days":
-        add_message.append("Manure application within 365 days of harvest increases risk. Ensure manure is correctly handled and processed before spreading.")
+        add_message.append("Manure application may increases contamination risk. Consider testing the manure samples for Listeria, and ensure manure is correctly handled and processed before spreading.")
     elif manure_mode == "manure_over_365_days":
-        add_message.append("Historic manure use may still influence risk. Continue routine monitoring and sanitation controls.")
+        add_message.append("Previous manure application may have increased contamination risk. Continue routine monitoring and controls.")
 
     if buffer_zone_mode == "no_buffer_zone":
-        add_message.append("No buffer zone can increase contamination risk from adjacent areas or wildlife.")
+        add_message.append("The absense of a buffer zone can increase contamination risk from adjacent areas or wildlife intrusions.")
     
     if to_return_risk_class == "High Risk":
-        add_message.append("High risk of Listeria presense in soil: targeted environmental testing is recommended, and impliment strategies to combat Listeria risk, such as sanitation or harvesting 144+ hours after rain/irrigation.")
+        add_message.append("High risk of Listeria presense in soil: implementation of intensified testing and intervention strategies are recommended.")
     elif to_return_risk_class == "Moderate Risk":
-        add_message.append("Moderate risk of Listeria presense in soil: increase monitoring frequency and tighten irrigation and harvest hygiene controls.")
+        add_message.append("Moderate risk of Listeria presense in soil: implementation of targeted testing and intervention strategies are recommended.")
     elif to_return_risk_class == "Low Risk":
-        add_message.append("Low risk of Listeria presense in soil: continue routine controls and verification sampling.")
+        add_message.append("Low risk of Listeria presense in soil: continue routine controls and sampling.")
     else:
-        add_message.append("Very low likelihood of finding Listeria in soil: No special measures are needed. Maintain current non-elevated controls and periodic verification.")
+        add_message.append("Very low risk of finding Listeria in soil: No special measures are needed. Maintain current controls and periodic sampling.")
     
     # returning results if pressent!
     return {
