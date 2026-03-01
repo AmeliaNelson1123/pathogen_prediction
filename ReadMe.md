@@ -194,7 +194,7 @@ Use `CSV (comma delimited)` format.
 
 ### Training Summary
 - *Listeria* data was analyzed in `preparation/listeria_eda.ipynb`.
-- Six model families were tested to evaluate predictive ability (`Run_Models_and_Analyze.ipynb` or `run_models_basic.py`).
+- Seven model families were tested to evaluate predictive ability (`Run_and_Test_Models.ipynb`, `Analyze_Models.ipynb` or `run_models_basic.py`).
 - Top 3 models were selected and tuned using hyperparameters and data engineering.
 - Feature selection used literature review, expert insight, permutation/feature importance, and PCA-based evaluation.
 
@@ -230,7 +230,7 @@ Run:
 - `preparation/saving_selected_models_for_pipeline.py`
 
 ### Modeling Test Process
-Open `preparation/Run_Models_and_Analyze.ipynb` and run all cells with a Python 3.10 interpreter.
+Open `preparation/Run_and_Test_Models.ipynb` and run all cells with a Python 3.10 to 3.13 interpreter to get the models. Then, open `preparation/Analyze_Models.ipynb` and run all cells with a Python 3.10 to 3.13 interpreter to analyze the model results.
 
 ## Repository Structure
 - `/data` -> Raw and processed data
@@ -239,7 +239,7 @@ Open `preparation/Run_Models_and_Analyze.ipynb` and run all cells with a Python 
 - `/website/backend/models/` -> Saved models
 - `/website/frontend/farm-app/src/` -> Frontend behavior and UI logic
 - `/website/frontend/farm-app/public/` -> Example soil files and static assets
-- `/preparation` -> Exploratory analysis and model selection files
+- `/preparation` -> Exploratory analysis, model testing, model analysis, and selection files
 
 ## Reproducibility Statement
 Random seed, test size, model results, and process context were documented throughout the project to improve reproducibility across machines and time.
