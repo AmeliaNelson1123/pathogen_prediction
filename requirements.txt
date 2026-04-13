@@ -8,3 +8,4 @@ pathlib
 numpy
 tensorflow==2.15.1
 keras
+uvicorn

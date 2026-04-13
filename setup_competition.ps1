@@ -7,6 +7,9 @@ Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
 function Get-PythonLauncher {
+    if (Get-Command python -ErrorAction SilentlyContinue) {
+        return "python3.10"
+    }
     if (Get-Command py -ErrorAction SilentlyContinue) {
         return "py"
     }
