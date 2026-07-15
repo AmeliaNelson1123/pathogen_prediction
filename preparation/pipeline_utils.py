@@ -11,6 +11,8 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.cluster import KMeans
 from sklearn.model_selection import train_test_split
 
 RANDOM_STATE = 42
@@ -112,3 +114,31 @@ def make_train_test(df: pd.DataFrame):
     return train_test_split(
         X, y, test_size=TEST_SIZE, random_state=RANDOM_STATE, stratify=y
     )
+
+
+class ClusterFeatureAdder(BaseEstimator, TransformerMixin):
+    """Append an unsupervised KMeans cluster id as an extra feature column.
+
+    KMeans is fit on the training data passed to `fit` ONLY. Because this
+    transformer sits inside the pipeline, cross-validation refits it on each
+    fold's training portion, so cluster centroids never see validation/test
+    rows (unlike the old precomputed cluster columns, which were fit on the
+    full dataset). The cluster id encodes which broad soil/geo profile group a
+    sample resembles.
+    """
+
+    def __init__(self, n_clusters: int = N_CLUSTERS, random_state: int = RANDOM_STATE):
+        self.n_clusters = n_clusters
+        self.random_state = random_state
+
+    def fit(self, X, y=None):
+        X = np.asarray(X, dtype=float)
+        self.kmeans_ = KMeans(
+            n_clusters=self.n_clusters, random_state=self.random_state, n_init=20
+        ).fit(X)
+        return self
+
+    def transform(self, X):
+        X = np.asarray(X, dtype=float)
+        labels = self.kmeans_.predict(X).reshape(-1, 1)
+        return np.hstack([X, labels])

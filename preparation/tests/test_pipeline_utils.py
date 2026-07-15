@@ -67,3 +67,30 @@ def test_make_train_test_is_stratified_and_deterministic():
     # stratified: train/test prevalence within 3pp of overall 0.5
     assert abs(ytr1.mean() - 0.5) < 0.03
     assert abs(yte1.mean() - 0.5) < 0.03
+
+
+def test_cluster_adder_appends_one_column():
+    X = np.random.RandomState(0).rand(50, 4)
+    adder = pu.ClusterFeatureAdder(n_clusters=3)
+    Xt = adder.fit_transform(X)
+    assert Xt.shape == (50, 5)
+    labels = Xt[:, -1]
+    assert set(np.unique(labels)).issubset({0, 1, 2})
+
+
+def test_cluster_adder_is_fit_on_training_only():
+    # centroids depend ONLY on fit data, not on later transform inputs
+    rng = np.random.RandomState(1)
+    Xtrain = rng.rand(60, 4)
+    Xother = rng.rand(10, 4) + 100.0  # far away block
+    adder = pu.ClusterFeatureAdder(n_clusters=3).fit(Xtrain)
+    centroids_before = adder.kmeans_.cluster_centers_.copy()
+    _ = adder.transform(Xother)  # transform must NOT refit
+    assert np.allclose(centroids_before, adder.kmeans_.cluster_centers_)
+
+
+def test_cluster_adder_deterministic():
+    X = np.random.RandomState(2).rand(40, 3)
+    a = pu.ClusterFeatureAdder().fit_transform(X)
+    b = pu.ClusterFeatureAdder().fit_transform(X)
+    assert np.allclose(a, b)
