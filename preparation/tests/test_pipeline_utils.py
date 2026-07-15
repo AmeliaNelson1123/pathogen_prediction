@@ -113,3 +113,30 @@ def test_preprocessor_without_clusters_matches_feature_count():
     Xt = pre.fit_transform(X)
     assert Xt.shape[1] == X.shape[1]
     assert not np.isnan(Xt).any()
+
+
+def test_inf_converter_converts_inf_to_nan():
+    """Test that _InfToNanConverter correctly converts inf/-inf to NaN."""
+    X = np.array([[np.inf, 1.0], [-np.inf, 2.0]])
+    converter = pu._InfToNanConverter()
+    Xt = converter.fit_transform(X)
+    # Inf values should be NaN
+    assert np.isnan(Xt[0, 0])
+    assert np.isnan(Xt[1, 0])
+    # Finite values should be unchanged
+    assert Xt[0, 1] == 1.0
+    assert Xt[1, 1] == 2.0
+
+
+def test_preprocessor_does_not_mutate_input():
+    """Test that make_preprocessor does not mutate the caller's input DataFrame."""
+    df = pu.load_and_prep()
+    X, _ = pu.split_xy(df)
+    # Record the number of inf values in the original data
+    before = np.isinf(X.to_numpy(dtype=float)).sum()
+    # Run the preprocessor
+    pre = pu.make_preprocessor(add_clusters=True)
+    _ = pre.fit_transform(X)
+    # Verify the caller's X still has the same number of inf values (was NOT mutated)
+    after = np.isinf(X.to_numpy(dtype=float)).sum()
+    assert after == before, f"Input was mutated: {before} infs before, {after} infs after"

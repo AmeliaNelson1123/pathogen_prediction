@@ -126,7 +126,7 @@ class _InfToNanConverter(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, X):
-        X = np.asarray(X, dtype=float)
+        X = np.array(X, dtype=float, copy=True)
         X[np.isinf(X)] = np.nan
         return X
 
