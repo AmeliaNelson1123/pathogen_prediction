@@ -11,6 +11,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
+from sklearn.model_selection import train_test_split
 
 RANDOM_STATE = 42
 TEST_SIZE = 0.22
@@ -98,3 +99,16 @@ def load_and_prep(path: Path | None = None) -> pd.DataFrame:
     # Drop columns that are entirely missing.
     df = df.dropna(axis=1, how="all")
     return df
+
+
+def split_xy(df: pd.DataFrame):
+    X = df.drop(columns=[Y_COL])
+    y = df[Y_COL]
+    return X, y
+
+
+def make_train_test(df: pd.DataFrame):
+    X, y = split_xy(df)
+    return train_test_split(
+        X, y, test_size=TEST_SIZE, random_state=RANDOM_STATE, stratify=y
+    )

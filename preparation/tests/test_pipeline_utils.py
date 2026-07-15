@@ -46,3 +46,24 @@ def test_load_and_prep_features_are_numeric_and_keep_nans():
     assert all(pd.api.types.is_numeric_dtype(t) for t in X.dtypes)
     # NaNs are preserved (NOT replaced with +/-99999 sentinels)
     assert (X.abs() == 99999).sum().sum() == 0
+
+
+def test_split_xy_separates_target():
+    df = pu.load_and_prep()
+    X, y = pu.split_xy(df)
+    assert pu.Y_COL not in X.columns
+    assert y.name == pu.Y_COL
+    assert len(X) == len(y) == 622
+
+
+def test_make_train_test_is_stratified_and_deterministic():
+    df = pu.load_and_prep()
+    Xtr1, Xte1, ytr1, yte1 = pu.make_train_test(df)
+    Xtr2, Xte2, ytr2, yte2 = pu.make_train_test(df)
+    # deterministic
+    assert list(ytr1.index) == list(ytr2.index)
+    # test size ~22%
+    assert abs(len(Xte1) / 622 - 0.22) < 0.01
+    # stratified: train/test prevalence within 3pp of overall 0.5
+    assert abs(ytr1.mean() - 0.5) < 0.03
+    assert abs(yte1.mean() - 0.5) < 0.03
