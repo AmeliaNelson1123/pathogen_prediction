@@ -10,6 +10,7 @@ import random
 from pathlib import Path
 
 import numpy as np
+import pandas as pd
 
 RANDOM_STATE = 42
 TEST_SIZE = 0.22
@@ -65,3 +66,35 @@ def set_seeds(seed: int = RANDOM_STATE) -> None:
         tf.keras.utils.set_random_seed(seed)
     except Exception:
         pass
+
+
+def load_and_prep(path: Path | None = None) -> pd.DataFrame:
+    """Load the CSV and return numeric features + binary target.
+
+    - Builds the binary target from the raw isolate count, then drops the count
+      column (prevents target leakage).
+    - Drops index artifacts and precomputed cluster columns (see LEAK_COLS).
+    - Coerces feature columns to numeric; junk like "#NAME?" becomes NaN and is
+      left for the in-pipeline median imputer. NO +/-99999 sentinel fill.
+    """
+    path = path or data_path()
+    df = pd.read_csv(path)
+
+    # Build binary target from the raw count column.
+    if RAW_COUNT_COL in df.columns:
+        df[Y_COL] = (df[RAW_COUNT_COL] != 0).astype(int)
+        df = df.drop(columns=[RAW_COUNT_COL])
+    if Y_COL not in df.columns:
+        raise ValueError(f"Neither {RAW_COUNT_COL!r} nor {Y_COL!r} present in {path}")
+    df[Y_COL] = df[Y_COL].astype(int)
+
+    # Drop leakage / artifact columns if present.
+    df = df.drop(columns=[c for c in LEAK_COLS if c in df.columns])
+
+    # Coerce features to numeric (turn "#NAME?" etc. into NaN); keep target intact.
+    feature_cols = [c for c in df.columns if c != Y_COL]
+    df[feature_cols] = df[feature_cols].apply(pd.to_numeric, errors="coerce")
+
+    # Drop columns that are entirely missing.
+    df = df.dropna(axis=1, how="all")
+    return df
