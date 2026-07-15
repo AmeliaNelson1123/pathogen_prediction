@@ -94,3 +94,22 @@ def test_cluster_adder_deterministic():
     a = pu.ClusterFeatureAdder().fit_transform(X)
     b = pu.ClusterFeatureAdder().fit_transform(X)
     assert np.allclose(a, b)
+
+
+def test_preprocessor_removes_nans_and_adds_cluster_col():
+    df = pu.load_and_prep()
+    X, y = pu.split_xy(df)
+    pre = pu.make_preprocessor(add_clusters=True)
+    Xt = pre.fit_transform(X)
+    assert not np.isnan(Xt).any()
+    # one extra column for the cluster id
+    assert Xt.shape[1] == X.shape[1] + 1
+
+
+def test_preprocessor_without_clusters_matches_feature_count():
+    df = pu.load_and_prep()
+    X, _ = pu.split_xy(df)
+    pre = pu.make_preprocessor(add_clusters=False)
+    Xt = pre.fit_transform(X)
+    assert Xt.shape[1] == X.shape[1]
+    assert not np.isnan(Xt).any()
