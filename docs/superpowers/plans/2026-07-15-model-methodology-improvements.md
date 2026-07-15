@@ -6,11 +6,12 @@
 
 **Architecture:** All modeling logic moves into one importable module, `preparation/pipeline_utils.py`. Preprocessing (median imputation → standardization → KMeans cluster feature) lives inside an sklearn `Pipeline` so it is refit on training folds only. sklearn models are tuned with `GridSearchCV`; the neural net is tuned with a small manual `StratifiedKFold` loop. A single stratified hold-out test set is scored once. The two notebooks become thin drivers that import the module (no notebook-to-notebook dependency). The deploy script and FastAPI backend consume the same module and a single `best_configs.json` so the report and the served models cannot drift.
 
-**Tech Stack:** Python 3.11, scikit-learn, TensorFlow/Keras 2.15, pandas, numpy, matplotlib/seaborn/plotly, pytest, jupyter/nbconvert, FastAPI (existing backend).
+**Tech Stack:** Python 3.12 (arm64/Apple Silicon), scikit-learn, TensorFlow 2.16 (bundles Keras 3), pandas, numpy, matplotlib/seaborn/plotly, pytest, jupyter/nbconvert, FastAPI (existing backend).
 
 ## Global Constraints
 
-- **Python version:** target **3.11** (also 3.10). `tensorflow==2.15.1` does NOT support Python 3.12+. Never claim "3.10–3.13".
+- **Python version / arch:** this machine is **Apple Silicon (arm64)**; the working interpreter is **Python 3.12** (`/usr/local/bin/python3.12`, universal2). Env already built at `.venv` (Task 1 done). Supported range 3.10–3.12.
+- **TensorFlow pin:** **`tensorflow==2.16.2`** — `2.15.1` has NO arm64 macOS wheel (its Intel wheel needs AVX and aborts under Rosetta). 2.16.2 is the earliest main-package version with arm64 wheels and is compatible with `numpy==1.26.4` / `scikit-learn==1.4.0`. TF 2.16 bundles **Keras 3** (no separate `keras` pin). `.keras` save/load and `tf.keras` Sequential/Dense/Input all work under Keras 3.
 - **Determinism:** seed everything with `RANDOM_STATE = 42` — `random`, `numpy`, `tensorflow`, every estimator that accepts `random_state`, and every split.
 - **Selection metric:** **accuracy**, measured by cross-validation on the **training data only**. The hold-out test set is scored exactly once, at the end.
 - **Reported metrics:** always report accuracy **plus** precision, recall, F1, ROC-AUC, PR-AUC, and the confusion matrix. Accuracy is never removed.
@@ -75,80 +76,29 @@ load_best_configs(path: Path | None = None) -> dict
 
 ---
 
-## Task 1: Reproducible environment & dependency pinning
+## Task 1: Reproducible environment & dependency pinning — ✅ COMPLETED
 
-**Files:**
-- Modify: `requirements.txt`
-- Create: `dev-requirements.txt`
+Done directly by the controller (env bootstrap is iterative/interactive, not a good subagent fit). What was actually done, and what later tasks must use:
 
-**Interfaces:**
-- Produces: a Python 3.11 virtualenv `.venv311/` with all deps installed; every later task runs inside it.
-
-- [ ] **Step 1: Create and activate a Python 3.11 virtualenv**
-
-Run:
-```bash
-cd /Users/yeonjinjung/Documents/pathogen_prediction
-python3.11 -m venv .venv311 || { echo "python3.11 not found — install via 'brew install python@3.11' or pyenv"; exit 1; }
-source .venv311/bin/activate
-python --version
-```
-Expected: `Python 3.11.x`.
-
-Then add the venv to `.gitignore` (the existing `.venv/` pattern does NOT match `.venv311/`):
-```bash
-grep -qxF '.venv311/' .gitignore || printf '\n# Python 3.11 project venv\n.venv311/\n' >> .gitignore
-```
-
-- [ ] **Step 2: Rewrite `requirements.txt` with pinned versions**
-
-Replace the entire file with:
-```
-pandas==2.2.0
-numpy==1.26.4
-scipy==1.13.0
-matplotlib==3.9.0
-seaborn==0.13.0
-plotly==5.22.0
-scikit-learn==1.4.0
-tensorflow==2.15.1
-keras==2.15.0
-joblib==1.4.2
-```
-(Removed: duplicate `numpy`, stdlib `pathlib`. Added: `plotly`, `scipy` pin, `joblib`. `numpy==1.26.4` is required by `tensorflow==2.15.1`, which needs numpy<2.)
-
-- [ ] **Step 3: Create `dev-requirements.txt`**
-
-```
-pytest==8.2.0
-jupyter==1.0.0
-nbconvert==7.16.4
-ipykernel==6.29.0
-```
-
-- [ ] **Step 4: Install and verify imports**
-
-Run:
-```bash
-pip install -r requirements.txt -r dev-requirements.txt
-python -c "import sklearn, tensorflow, plotly, pandas, numpy; print('sklearn', sklearn.__version__, '| tf', tensorflow.__version__, '| np', numpy.__version__)"
-```
-Expected: prints `sklearn 1.4.0 | tf 2.15.1 | np 1.26.4` with no ImportError.
-
-- [ ] **Step 5: Register the venv as a Jupyter kernel (for later notebook runs)**
-
-Run:
-```bash
-python -m ipykernel install --user --name pathogen311 --display-name "pathogen311"
-```
-Expected: `Installed kernelspec pathogen311 ...`.
-
-- [ ] **Step 6: Commit**
-
-```bash
-git add requirements.txt dev-requirements.txt
-git commit -m "build: pin dependencies and add dev tooling for reproducible 3.11 env"
-```
+- **Interpreter:** `/usr/local/bin/python3.12` (universal2) forced to arm64. The venv is `.venv/` (already matched by `.gitignore`'s `.venv/` pattern — no gitignore change needed). Created with `arch -arm64 /usr/local/bin/python3.12 -m venv .venv`. The venv runs arm64 by default (no `arch` prefix needed in later commands).
+- **Activation for every later task:** `source .venv/bin/activate`.
+- **Jupyter kernel name (for nbconvert):** `pathogen-venv`.
+- **`requirements.txt`** (committed) now reads exactly:
+  ```
+  pandas==2.2.0
+  numpy==1.26.4
+  scipy==1.13.0
+  matplotlib==3.9.0
+  seaborn==0.13.0
+  plotly==5.22.0
+  scikit-learn==1.4.0
+  tensorflow==2.16.2
+  joblib==1.4.2
+  ```
+  (Removed duplicate `numpy`, stdlib `pathlib`, and the invalid `keras==2.15.0` pin — TF 2.16 bundles Keras 3.)
+- **`dev-requirements.txt`** (committed): `pytest==8.2.0`, `jupyter==1.0.0`, `nbconvert==7.16.4`, `ipykernel==6.29.0`.
+- **Verified:** `machine=arm64`, `tf 2.16.2 | numpy 1.26.4 | sklearn 1.4.0 | pandas 2.2.0`; a tiny TF build+fit+predict succeeds (no AVX abort).
+- **Committed:** `72ab338 build: pin arm64-compatible deps (Python 3.12, TF 2.16.2) and add dev tooling`.
 
 ---
 
@@ -1188,10 +1138,10 @@ top3[["model used", "accuracy", "recall", "roc_auc"]]
 Run:
 ```bash
 cd /Users/yeonjinjung/Documents/pathogen_prediction
-source .venv311/bin/activate
+source .venv/bin/activate
 jupyter nbconvert --to notebook --execute --inplace \
   --ExecutePreprocessor.timeout=3600 \
-  --ExecutePreprocessor.kernel_name=pathogen311 \
+  --ExecutePreprocessor.kernel_name=pathogen-venv \
   preparation/Run_and_Test_Models.ipynb
 ```
 Expected: exit 0, no traceback in output cells.
@@ -1274,7 +1224,7 @@ Run:
 ```bash
 jupyter nbconvert --to notebook --execute --inplace \
   --ExecutePreprocessor.timeout=3600 \
-  --ExecutePreprocessor.kernel_name=pathogen311 \
+  --ExecutePreprocessor.kernel_name=pathogen-venv \
   preparation/Analyze_Models.ipynb
 ```
 Expected: exit 0, no traceback; a calibration plot renders; DT and RF CV means print within ~1 std of each other.
@@ -1308,7 +1258,8 @@ Find the existing Table 1 (the one reporting GBM 94.16%/94.2%) and replace the n
 
 Replace the "Python 3.10-3.13 compatible" claim with:
 ```
-Requires Python 3.10 or 3.11 (tensorflow==2.15.1 does not support Python 3.12+).
+Requires Python 3.10–3.12 (uses tensorflow 2.16.x). On Apple Silicon, install with a
+native-arm64 Python — the Intel tensorflow wheel aborts under Rosetta (AVX).
 ```
 Add one line near the methods/data description:
 ```
@@ -1412,7 +1363,7 @@ Note: `best_configs.json` stores sklearn params as `clf__*` (from GridSearchCV) 
 
 Run:
 ```bash
-cd /Users/yeonjinjung/Documents/pathogen_prediction && source .venv311/bin/activate
+cd /Users/yeonjinjung/Documents/pathogen_prediction && source .venv/bin/activate
 python -m preparation.saving_selected_models_for_pipeline
 ls -1 website/backend/models/ | grep -E "preprocess_|_main|_soil_only|_longlat_only"
 ```
@@ -1456,7 +1407,7 @@ git commit -m "feat: deploy CV-selected models from best_configs; NN saved as .k
 
 - [ ] **Step 1: Align backend dependency pins with the training env**
 
-In `website/requirements.txt` set `scikit-learn==1.4.0` and `numpy==1.26.4` (must match the versions that pickled the models) and pin `tensorflow==2.15.1` (add `keras==2.15.0`). Leave the FastAPI/GEE pins unchanged.
+In `website/requirements.txt` set `scikit-learn==1.4.0` and `numpy==1.26.4` (must match the versions that pickled the models) and pin `tensorflow==2.16.2` (TF 2.16 bundles Keras 3 — do NOT add a separate `keras` pin). Leave the FastAPI/GEE pins unchanged.
 
 - [ ] **Step 2: Point model paths at the new artifact names**
 
@@ -1518,7 +1469,7 @@ git commit -m "feat: backend loads Keras NN + saved preprocess pipeline; remove 
 
 - [ ] **Step 1: Run the whole test suite**
 
-Run: `cd /Users/yeonjinjung/Documents/pathogen_prediction && source .venv311/bin/activate && python -m pytest preparation/tests/ -v`
+Run: `cd /Users/yeonjinjung/Documents/pathogen_prediction && source .venv/bin/activate && python -m pytest preparation/tests/ -v`
 Expected: all pass.
 
 - [ ] **Step 2: Confirm both notebooks execute clean from a fresh kernel**
@@ -1527,7 +1478,7 @@ Run:
 ```bash
 for nb in Run_and_Test_Models Analyze_Models; do
   jupyter nbconvert --to notebook --execute --inplace \
-    --ExecutePreprocessor.timeout=3600 --ExecutePreprocessor.kernel_name=pathogen311 \
+    --ExecutePreprocessor.timeout=3600 --ExecutePreprocessor.kernel_name=pathogen-venv \
     preparation/$nb.ipynb && echo "$nb OK"
 done
 ```

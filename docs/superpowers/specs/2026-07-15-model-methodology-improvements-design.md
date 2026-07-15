@@ -139,8 +139,10 @@ of the criticisms share a single root cause:
   `results_for_ListeriaSoil_clean_log.csv` and `top_3_scaled_models_summary.csv`; update
   README Table 1 (and note the corrected metrics for the PDF).
 - `requirements.txt`: remove duplicate `numpy`, remove stdlib `pathlib`, add `plotly`, pin
-  all versions, and add a Python-version constraint (`Requires Python 3.10 or 3.11`, since
-  `tensorflow==2.15.1` does not support 3.12+).
+  all versions. Python/TF pin resolved during execution: this machine is Apple Silicon
+  (arm64), where `tensorflow==2.15.1` has no wheel; the working set is **Python 3.12 +
+  `tensorflow==2.16.2`** (Keras 3) + `numpy==1.26.4` + `scikit-learn==1.4.0`. README note:
+  `Requires Python 3.10–3.12 (tensorflow 2.16.x); on Apple Silicon use a native-arm64 Python`.
 
 ## 7. Deployment alignment
 
