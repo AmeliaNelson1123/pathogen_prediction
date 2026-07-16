@@ -1,4 +1,4 @@
-Model Used,Scaler Status,Accuracy,Precision,Recall,F1-Score,ROC AUC,PR AUC,Layers,Neurons,Batch_Size,Epochs,Learning_Rate,N_Estimators,C_Val,Kernel
-neural net,standard_scalar,0.9051,0.9315,0.8947,0.9128,0.9474,0.9611,4.0,128.0,64.0,20.0,,,,
-gbm,standard_scalar,0.8759,0.9155,0.8553,0.8844,0.9439,0.9564,,,,,0.2,800.0,,
-svm,standard_scalar,0.8686,0.8718,0.8947,0.8831,0.9316,0.9570,,,,,,,4.0,rbf
+model used,cv_accuracy,accuracy,precision,recall,f1,roc_auc,pr_auc,confusion_matrix,param.clf__C,param.clf__l1_ratio,param.clf__n_neighbors,param.clf__weights,param.clf__max_depth,param.clf__min_samples_split,param.clf__min_samples_leaf,param.clf__n_estimators,param.clf__kernel,param.clf__learning_rate,param.n_layers,param.n_neurons,param.epochs,param.batch_size
+gbm,0.8701030927835051,0.8978102189781022,0.8970588235294118,0.8970588235294118,0.8970588235294118,0.9567348678601875,0.9630437372328675,"[[62, 7], [7, 61]]",,,,,,,,100.0,,0.2,,,,
+neural_net,0.845360824742268,0.8832116788321168,0.8823529411764706,0.8823529411764706,0.8823529411764706,0.9205029838022165,0.913551884276047,"[[61, 8], [8, 60]]",,,,,,,,,,,3.0,128.0,20.0,64.0
+svm,0.8371134020618557,0.8540145985401459,0.8636363636363636,0.8382352941176471,0.8507462686567164,0.9309462915601023,0.9453100759121479,"[[60, 9], [11, 57]]",4.0,,,,,,,,rbf,,,,,

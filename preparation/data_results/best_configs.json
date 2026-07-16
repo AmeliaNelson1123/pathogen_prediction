@@ -1,0 +1,54 @@
+{
+  "logistic_regression": {
+    "cv_best": 0.7938144329896908,
+    "params": {
+      "clf__C": 0.1,
+      "clf__l1_ratio": 0.0
+    }
+  },
+  "knn": {
+    "cv_best": 0.781443298969072,
+    "params": {
+      "clf__n_neighbors": 10,
+      "clf__weights": "distance"
+    }
+  },
+  "decision_tree": {
+    "cv_best": 0.8082474226804124,
+    "params": {
+      "clf__max_depth": 50,
+      "clf__min_samples_split": 20
+    }
+  },
+  "random_forest": {
+    "cv_best": 0.8680412371134022,
+    "params": {
+      "clf__max_depth": null,
+      "clf__min_samples_leaf": 2,
+      "clf__n_estimators": 100
+    }
+  },
+  "svm": {
+    "cv_best": 0.8371134020618557,
+    "params": {
+      "clf__C": 4,
+      "clf__kernel": "rbf"
+    }
+  },
+  "gbm": {
+    "cv_best": 0.8701030927835051,
+    "params": {
+      "clf__learning_rate": 0.2,
+      "clf__n_estimators": 100
+    }
+  },
+  "neural_net": {
+    "cv_best": 0.845360824742268,
+    "params": {
+      "n_layers": 3,
+      "n_neurons": 128,
+      "epochs": 20,
+      "batch_size": 64
+    }
+  }
+}
