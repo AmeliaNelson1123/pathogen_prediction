@@ -175,3 +175,24 @@ def test_run_sklearn_selection_returns_fitted_best(monkeypatch):
         assert 0.5 <= res["cv_best"] <= 1.0
         # fitted: can predict
         assert res["estimator"].predict(Xte).shape[0] == len(yte)
+
+
+def test_build_nn_shapes():
+    pu.set_seeds()
+    model = pu.build_nn(input_dim=10, n_layers=2, n_neurons=16)
+    assert model.input_shape == (None, 10)
+    assert model.output_shape == (None, 1)
+
+
+def test_nn_grid_is_small():
+    grid = pu.nn_grid()
+    assert 1 <= len(grid) <= 12  # kept small on purpose
+    assert all({"n_layers", "n_neurons", "epochs", "batch_size"} <= set(g) for g in grid)
+
+
+def test_run_nn_selection_returns_params():
+    df = pu.load_and_prep()
+    Xtr, Xte, ytr, yte = pu.make_train_test(df)
+    out = pu.run_nn_selection(Xtr, ytr)
+    assert 0.5 <= out["cv_best"] <= 1.0
+    assert {"n_layers", "n_neurons", "epochs", "batch_size"} <= set(out["params"])

@@ -232,6 +232,75 @@ def sklearn_search_spaces() -> dict[str, tuple[Pipeline, dict]]:
     }
 
 
+def build_nn(input_dim: int, n_layers: int, n_neurons: int):
+    """Build and compile a small feed-forward classifier.
+
+    Dense relu stack (n_layers x n_neurons) -> single sigmoid output unit,
+    trained with adam / binary_crossentropy for binary classification.
+    """
+    import tensorflow as tf
+    from tensorflow.keras.models import Sequential
+    from tensorflow.keras.layers import Dense, Input
+
+    model = Sequential()
+    model.add(Input(shape=(input_dim,)))
+    for _ in range(n_layers):
+        model.add(Dense(n_neurons, activation="relu"))
+    model.add(Dense(1, activation="sigmoid"))
+    model.compile(optimizer="adam", loss="binary_crossentropy", metrics=["accuracy"])
+    return model
+
+
+def nn_grid() -> list[dict]:
+    """Small hyperparameter grid for the neural net (vs. an exhaustive sweep).
+
+    Kept deliberately tiny so the manual CV loop in `run_nn_selection` finishes
+    in a few minutes instead of hours.
+    """
+    return [
+        {"n_layers": 1, "n_neurons": 32, "epochs": 20, "batch_size": 64},
+        {"n_layers": 2, "n_neurons": 64, "epochs": 20, "batch_size": 64},
+        {"n_layers": 3, "n_neurons": 128, "epochs": 20, "batch_size": 64},
+        {"n_layers": 4, "n_neurons": 128, "epochs": 20, "batch_size": 64},
+    ]
+
+
+def run_nn_selection(X_train, y_train, scoring: str = "accuracy") -> dict:
+    """Select the best NN hyperparameters via a manual, leakage-free CV loop.
+
+    GridSearchCV is intentionally NOT used here (that would require a scikeras
+    wrapper). Instead we manually loop over `nn_grid()` configs and a seeded
+    `StratifiedKFold(5)`, re-fitting `make_preprocessor()` on each fold's
+    TRAINING split only (never on the validation split) and reseeding via
+    `set_seeds()` before building/fitting each fold's model, so results are
+    both leakage-free and reproducible.
+    """
+    from sklearn.metrics import accuracy_score
+
+    cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=RANDOM_STATE)
+    y_arr = np.asarray(y_train)
+    X_df = pd.DataFrame(X_train).reset_index(drop=True)
+    y_ser = pd.Series(y_arr).reset_index(drop=True)
+
+    best = {"params": None, "cv_best": -1.0}
+    for cfg in nn_grid():
+        fold_scores = []
+        for tr_idx, va_idx in cv.split(X_df, y_ser):
+            set_seeds()
+            pre = make_preprocessor(add_clusters=True)
+            X_tr = pre.fit_transform(X_df.iloc[tr_idx])
+            X_va = pre.transform(X_df.iloc[va_idx])
+            model = build_nn(X_tr.shape[1], cfg["n_layers"], cfg["n_neurons"])
+            model.fit(X_tr, y_ser.iloc[tr_idx], epochs=cfg["epochs"],
+                      batch_size=cfg["batch_size"], verbose=0)
+            proba = model.predict(X_va, verbose=0).flatten()
+            fold_scores.append(accuracy_score(y_ser.iloc[va_idx], (proba > 0.5).astype(int)))
+        mean_score = float(np.mean(fold_scores))
+        if mean_score > best["cv_best"]:
+            best = {"params": cfg, "cv_best": mean_score}
+    return best
+
+
 def run_sklearn_selection(X_train, y_train, scoring: str = "accuracy") -> dict:
     """Select the best hyperparameters per model via CV on the TRAINING set only.
 
