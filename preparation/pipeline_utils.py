@@ -16,6 +16,10 @@ from sklearn.cluster import KMeans
 from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
 from sklearn.impute import SimpleImputer
 from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import (
+    accuracy_score, precision_score, recall_score, f1_score,
+    confusion_matrix, roc_auc_score, average_precision_score,
+)
 from sklearn.model_selection import GridSearchCV, StratifiedKFold, train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.pipeline import Pipeline
@@ -319,3 +323,49 @@ def run_sklearn_selection(X_train, y_train, scoring: str = "accuracy") -> dict:
             "params": dict(search.best_params_),
         }
     return results
+
+
+def predict_proba_any(estimator, X) -> np.ndarray:
+    """Get positive-class probabilities from an estimator.
+
+    Handles both sklearn estimators (with predict_proba) and Keras models
+    (without predict_proba; use .predict().flatten()).
+
+    Args:
+        estimator: A fitted sklearn estimator or Keras model.
+        X: Feature matrix.
+
+    Returns:
+        1D array of probabilities for the positive class [0, 1].
+    """
+    if hasattr(estimator, "predict_proba"):
+        return estimator.predict_proba(X)[:, 1]
+    # Keras model
+    return np.asarray(estimator.predict(X, verbose=0)).flatten()
+
+
+def evaluate(y_true, y_proba, threshold: float = 0.5) -> dict:
+    """Compute a full set of binary classification metrics.
+
+    Args:
+        y_true: True binary labels (0/1).
+        y_proba: Predicted probabilities for the positive class [0, 1].
+        threshold: Classification threshold for binary predictions (default 0.5).
+
+    Returns:
+        Dict with keys: accuracy, precision, recall, f1, roc_auc, pr_auc,
+        confusion_matrix (as a 2x2 list).
+    """
+    y_true = np.asarray(y_true).astype(int)
+    y_proba = np.asarray(y_proba, dtype=float)
+    y_pred = (y_proba > threshold).astype(int)
+    cm = confusion_matrix(y_true, y_pred, labels=[0, 1])
+    return {
+        "accuracy": float(accuracy_score(y_true, y_pred)),
+        "precision": float(precision_score(y_true, y_pred, zero_division=0)),
+        "recall": float(recall_score(y_true, y_pred, zero_division=0)),
+        "f1": float(f1_score(y_true, y_pred, zero_division=0)),
+        "roc_auc": float(roc_auc_score(y_true, y_proba)),
+        "pr_auc": float(average_precision_score(y_true, y_proba)),
+        "confusion_matrix": cm.tolist(),
+    }

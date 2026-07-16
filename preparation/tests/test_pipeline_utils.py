@@ -196,3 +196,24 @@ def test_run_nn_selection_returns_params():
     out = pu.run_nn_selection(Xtr, ytr)
     assert 0.5 <= out["cv_best"] <= 1.0
     assert {"n_layers", "n_neurons", "epochs", "batch_size"} <= set(out["params"])
+
+
+def test_evaluate_perfect_and_keys():
+    y_true = [0, 0, 1, 1]
+    y_proba = [0.1, 0.2, 0.8, 0.9]
+    m = pu.evaluate(y_true, y_proba)
+    assert set(m) == {"accuracy", "precision", "recall", "f1",
+                      "roc_auc", "pr_auc", "confusion_matrix"}
+    assert m["accuracy"] == 1.0
+    assert m["recall"] == 1.0
+    assert m["confusion_matrix"] == [[2, 0], [0, 2]]
+
+
+def test_predict_proba_any_sklearn():
+    df = pu.load_and_prep()
+    Xtr, Xte, ytr, yte = pu.make_train_test(df)
+    _, (pipe, _) = "gbm", (pu.sklearn_search_spaces()["gbm"])
+    pipe.fit(Xtr, ytr)
+    proba = pu.predict_proba_any(pipe, Xte)
+    assert proba.shape[0] == len(yte)
+    assert ((proba >= 0) & (proba <= 1)).all()
