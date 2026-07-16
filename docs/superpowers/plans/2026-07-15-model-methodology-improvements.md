@@ -1417,10 +1417,15 @@ In `main.py`, update `MODEL_PATH_CANDIDATES` so `neural_net` entries use `neural
 
 In `load_model`, when `model_type == "neural_net"`, load with `keras.models.load_model(model_path)` instead of `joblib.load`. In the preprocessing function (the `prep_dataframe`-style function around lines 546–609), replace the manual `fillna`/`replace(±99999)`/`scaler.transform`/`kmeans predict`/`ADD_CLUSTERS` block with:
 ```python
-# One saved preprocessing pipeline reproduces training-time transforms
-# (median impute -> standardize -> KMeans cluster feature), fit on training data.
+# CORRECTION: preprocess.feature_names_in_ does NOT exist (the pipeline was fit on a numpy
+# array), so reindex to the saved per-variant feature-order list instead. Missing columns
+# become NaN and the pipeline's median imputer fills them. (features_<variant>.json is written
+# by the augmented deploy script — see the dispatch instructions for this task.)
+import json
+with open(FEATURES_PATHS[model_variant]) as f:
+    feature_order = json.load(f)
 preprocess = joblib.load(PREPROCESS_PATHS[model_variant])
-X = preprocess.transform(df.reindex(columns=preprocess.feature_names_in_))
+X = preprocess.transform(df.reindex(columns=feature_order))
 ```
 Delete the now-dead `kmeans_fitter.joblib` / `scaled_kmeans_fitter.joblib` loads and the `ADD_CLUSTERS` branch. In the prediction path, keep the `neural_net` special-case that calls `model.predict(...)` and the sklearn `predict_proba` path; both now receive the already-transformed `X`, so drop the separate `feature_names_in_` reindex-from-gbm hack.
 
