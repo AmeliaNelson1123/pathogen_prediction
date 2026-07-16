@@ -1,11 +1,11 @@
 fastapi==0.115.12
 uvicorn==0.34.0
 python-multipart==0.0.20
-numpy==2.2.6
+numpy==1.26.4
 pandas==2.3.3
 joblib==1.4.2
-scikit-learn==1.7.2
+scikit-learn==1.4.0
 earthengine-api==1.7.15
 certifi==2026.2.25
 truststore==0.10.4
-tensorflow
+tensorflow==2.16.2

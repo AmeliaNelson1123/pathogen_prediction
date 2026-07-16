@@ -54,27 +54,36 @@ FRONTEND_DIST_DIR = BASE_DIR.parent / "frontend" / "farm-app" / "dist"
 # each entry is a list of fallback candidates, first-existing path is used.
 MODEL_PATH_CANDIDATES: dict[str, dict[str, list[Path]]] = {
     "soil_longlat": {
-        "gbm": BASE_DIR / "models" / "gbm_main.pkl",
-        "neural_net": BASE_DIR / "models" / "neural_net_main.pkl",
-        "svm": BASE_DIR / "models" / "svm_main.pkl",
+        "gbm": BASE_DIR / "models" / "gbm_main.joblib",
+        "neural_net": BASE_DIR / "models" / "neural_net_main.keras",
+        "svm": BASE_DIR / "models" / "svm_main.joblib",
     },
     "longlat_only": {
-        "gbm": BASE_DIR / "models" / "gbm_longlat_only.pkl",
-        "neural_net": BASE_DIR / "models" / "neural_net_longlat_only.pkl",
-        "svm": BASE_DIR / "models" / "svm_longlat_only.pkl",
+        "gbm": BASE_DIR / "models" / "gbm_longlat_only.joblib",
+        "neural_net": BASE_DIR / "models" / "neural_net_longlat_only.keras",
+        "svm": BASE_DIR / "models" / "svm_longlat_only.joblib",
     },
     "soil_only": {
-        "gbm": BASE_DIR / "models" / "gbm_soil_only.pkl",
-        "neural_net": BASE_DIR / "models" / "neural_net_soil_only.pkl",
-        "svm": BASE_DIR / "models" / "svm_soil_only.pkl",
+        "gbm": BASE_DIR / "models" / "gbm_soil_only.joblib",
+        "neural_net": BASE_DIR / "models" / "neural_net_soil_only.keras",
+        "svm": BASE_DIR / "models" / "svm_soil_only.joblib",
     },
 }
 
-# scaler paths if wanted for the models
-SCALER_PATH_CANDIDATES: dict[str, dict[str, list[Path]]] = {
-    "soil_longlat": BASE_DIR / "models" / "scaler_file_main.joblib",
-    "longlat_only": BASE_DIR / "models" / "scaler_file_longlat_only.joblib",
-    "soil_only": BASE_DIR / "models" / "scaler_file_soil_only.joblib",
+# saved sklearn preprocessing pipelines (inf->NaN, median impute, standardize,
+# [+KMeans cluster for the "soil_longlat"/main variant]) fit by
+# preparation/saving_selected_models_for_pipeline.py
+PREPROCESS_PATHS: dict[str, Path] = {
+    "soil_longlat": BASE_DIR / "models" / "preprocess_main.joblib",
+    "longlat_only": BASE_DIR / "models" / "preprocess_longlat_only.joblib",
+    "soil_only": BASE_DIR / "models" / "preprocess_soil_only.joblib",
+}
+
+# per-variant ordered raw feature columns the preprocessor above was fit on
+FEATURES_PATHS: dict[str, Path] = {
+    "soil_longlat": BASE_DIR / "models" / "features_main.json",
+    "longlat_only": BASE_DIR / "models" / "features_longlat_only.json",
+    "soil_only": BASE_DIR / "models" / "features_soil_only.json",
 }
 
 # creating a dictonary to store the loaded models
@@ -100,7 +109,6 @@ LONGLAT_VARS = ['Latitude', 'Longitude',
 LOG_LONGLAT_VARS = ['Grassland (%)', 'Shrubland (%)', 'Open water (%)',
         'Developed open space (> 20% Impervious Cover) (%)', 'Elevation (m)',
         'Cropland (%)', 'Wetland (%)', "Developed open space (< 20% Impervious Cover) (%)"]
-CLUSTER_VARS = ['cluster_kmeans', 'scaled_cluster_kmeans']
 
 # Optional management-factor effects are applied as odds multipliers.
 IRRIGATION_MULTIPLIER: dict[str, float] = {
@@ -137,11 +145,6 @@ RISK_THRESHOLDS = {
     "moderate": 0.65,  # find source to make it not arbitrary
     "low": 0.59,  # find source to make it not arbitrary
 }
-
-# data prep variables in case model pipeline changes
-ADD_CLUSTERS = False # if the model requires standardized and non-standardized clusters
-ENCODE_STR = False # if the model requires the one-hot encoding of columns of strings/catagories
-USE_SCALER = True # if want to run models that were trained on scaled data
 
 # ------------------------------
 # --- Helper Functions ---------
@@ -547,17 +550,6 @@ def data_prep(df, model_variant):
     df = keep_only_allowed_columns(df=df, model_variant=model_variant)
     # performing log transform where needed
     df = log_transform_vars(df=df, model_variant=model_variant)
-    
-    # switching missing values and weird failures in writing to np.inf bc pandas didnt handle properly
-    df = df.replace("#NAME?", -np.inf)
-    df = df.fillna(-np.inf)
-
-    # replacing inf with max number that is not max number + 100 in dict (FOR NOT JUST 99999999)
-    df = df.replace(np.inf, 99999)
-    # replacing -inf with min number (not -inf) - 100 in dict (FOR NOT JUST -99999999)
-    df = df.replace(-np.inf, -99999)
-
-    df = df.dropna(axis=1, how="all")
 
     # Drop 'index' column if it exists, as it's typically an artifact and not a feature
     if 'index' in df.columns:
@@ -567,45 +559,10 @@ def data_prep(df, model_variant):
     if 'Unnamed: 0' in df.columns:
         df = df.drop(columns=['Unnamed: 0'])
 
-    # grabbing the scaler to use if necessray
-    scaler = joblib.load(SCALER_PATH_CANDIDATES[model_variant])
-    # if the model is trained on scaled data, this should be true
-    if USE_SCALER:
-        # Reindex to scaler features and fill any absent columns with a safe default.
-        df_copy = df.reindex(columns=scaler.feature_names_in_, fill_value=0.0)
-        df = scaler.transform(df_copy) # only for scaled kmeans
-        df = pd.DataFrame(df, columns=df_copy.columns, index=df_copy.index)
-
-    # dealing with kmeans clusters used in the full model, and also the scaler value
-    if model_variant == "soil_longlat":
-        kmeans_raw = joblib.load(BASE_DIR / "models" / "kmeans_fitter.joblib")
-        kmeans_scaled = joblib.load(BASE_DIR / "models" / "scaled_kmeans_fitter.joblib")
-
-        if ADD_CLUSTERS:
-            # quickly dropping columns not trained on for clusters
-            if 'Unnamed: 0' in df.columns:
-                df = df.drop(columns=['Unnamed: 0'])
-            if 'log of index' in df.columns:
-                df = df.drop(columns=['log of index'])
-            # dropping other necessary cols for clusters
-            df_for_kmeans = df.drop(columns=['log of Open water (%)', 'log of Phosphorus (mg/Kg)', 'log of Wetland (%)', 'double log of Zinc (mg/Kg)', 'log of Aluminum (mg/Kg)', 'log of Cropland (%)', 'log of Developed open space (< 20% Impervious Cover) (%)', 'log of Developed open space (> 20% Impervious Cover) (%)'])
-            df_for_kmeans_scaled = df.drop(columns=['log of Open water (%)', 'log of Phosphorus (mg/Kg)', 'log of Wetland (%)', 'double log of Zinc (mg/Kg)', 'log of Aluminum (mg/Kg)', 'log of Cropland (%)', 'log of Developed open space (< 20% Impervious Cover) (%)', 'log of Developed open space (> 20% Impervious Cover) (%)'])
-            
-            # grabbing scaled and non-scaled cluster values
-            df["cluster_kmeans"] = kmeans_raw.predict(df_for_kmeans)
-            df["scaled_cluster_kmeans"] = kmeans_scaled.predict(df_for_kmeans_scaled)
-
-    # quickly dropping columns not trained on for clusters
-    if 'Unnamed: 0' in df.columns:
-        df = df.drop(columns=['Unnamed: 0'])
-    if 'log of index' in df.columns:
-        df = df.drop(columns=['log of index'])
-
-    # quickly encoding strings using one-hot if required by model
-    if ENCODE_STR:
-        df = pd.get_dummies(df)
-
-    # returning :)
+    # returning raw (unscaled, possibly-NaN) feature columns; the saved
+    # preprocess_<variant>.joblib pipeline (inf->NaN, median impute, standardize,
+    # [+cluster for main]) is applied later, right before prediction, once the
+    # columns are reindexed to the per-variant features_<variant>.json order.
     return df
 
 
@@ -634,7 +591,7 @@ def load_model(model_variant: str, model_type: str) -> Any:
     # Only require keras/tensorflow when a neural net model is actually requested.
     if model_type == "neural_net":
         try:
-            import keras  # noqa: F401
+            import keras
         except ModuleNotFoundError:
             raise HTTPException(
                 status_code=500,
@@ -644,9 +601,13 @@ def load_model(model_variant: str, model_type: str) -> Any:
                 ),
             )
 
-    # loading the model to run!
+    # loading the model to run! neural nets are saved as Keras models (.keras),
+    # gbm/svm are saved as sklearn estimators (.joblib).
     try:
-        model = joblib.load(model_path)
+        if model_type == "neural_net":
+            model = keras.models.load_model(model_path)
+        else:
+            model = joblib.load(model_path)
     except Exception as exc:
         raise HTTPException(
             status_code=500, detail=f"Could not load model {model_path.name}: {exc}" # user feedback
@@ -959,22 +920,22 @@ async def predict(
     if 'index' in X.columns:
         X = X.drop(columns=['index'])
 
-    # neural net models dont have feature_names_in_ variable, so loading the gbm model which will have the same feature order
-    if model_type == "neural_net":
-        model_for_features_to_reindex = load_model(model_variant, 'gbm')
-        features_to_reindex = model_for_features_to_reindex.feature_names_in_
-        X = X.reindex(columns=features_to_reindex, fill_value=0.0)
-        X = X.fillna(0.0)
-    else: # svm and gbm models have feature_names_in_
-        X = X.reindex(columns=model.feature_names_in_, fill_value=0.0)
-        X = X.fillna(0.0)
+    # Reindex to the exact ordered feature columns the preprocessor was fit on
+    # (missing columns -> NaN, which the pipeline's median imputer fills; extra
+    # columns dropped), then run the saved sklearn pipeline: inf->NaN, median
+    # impute, standardize, [+cluster feature for the "soil_longlat"/main variant].
+    # NOTE: preprocess.feature_names_in_ / model.feature_names_in_ do NOT exist
+    # here (fit on a numpy array), so we use the persisted feature-order list.
+    with open(FEATURES_PATHS[model_variant]) as f:
+        feature_order = json.load(f)
+    X_df = X.reindex(columns=feature_order)
+    preprocess = joblib.load(PREPROCESS_PATHS[model_variant])
+    X_arr = preprocess.transform(X_df)
 
-    # columns that contain at least one NaN
-    nan_cols = X.columns[X.isna().any()].tolist()
-    if nan_cols:
+    if np.isnan(X_arr).any():
         raise HTTPException(
             status_code=400,
-            detail=f"Input still contains NaN after preprocessing in columns: {nan_cols}",
+            detail="Input still contains NaN after preprocessing.",
         )
 
     # running a prediction model!
@@ -983,7 +944,7 @@ async def predict(
         # neural net special case because no predict_proba
         if model_type == "neural_net":
             # Keras path
-            proba = model.predict(X, verbose=0)
+            proba = model.predict(X_arr, verbose=0)
             if proba.ndim == 2 and proba.shape[1] == 1:
                 prob_class_1 = proba[:, 0].astype(float)
                 result = np.column_stack([1.0 - prob_class_1, prob_class_1])
@@ -993,7 +954,7 @@ async def predict(
                 raise ValueError(f"Unexpected neural net output shape: {proba.shape}")
 
         else: # svm and gbm models
-            result = model.predict_proba(X)
+            result = model.predict_proba(X_arr)
     except Exception as exc:
         # user feedback if the model fails
         raise HTTPException(status_code=500, detail=f"Prediction failed: {exc}") from exc

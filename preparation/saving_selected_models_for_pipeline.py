@@ -4,7 +4,7 @@ Single source of truth: reads preparation/data_results/best_configs.json so the
 served models match the reported metrics. Run AFTER Run_and_Test_Models.ipynb.
 """
 from pathlib import Path
-import joblib, numpy as np
+import json, joblib, numpy as np
 import preparation.pipeline_utils as pu
 
 OUTPUT = pu.project_root() / "website" / "backend" / "models"
@@ -35,6 +35,8 @@ def train_variant(df, variant, configs):
     pre = pu.make_preprocessor(add_clusters=(variant == "main"))
     Xtr_t = pre.fit_transform(Xtr)
     joblib.dump(pre, OUTPUT / f"preprocess_{variant}.joblib")
+    with open(OUTPUT / f"features_{variant}.json", "w") as f:
+        json.dump(list(Xtr.columns), f, indent=2)
 
     from sklearn.ensemble import GradientBoostingClassifier
     from sklearn.svm import SVC
