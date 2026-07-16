@@ -140,3 +140,38 @@ def test_preprocessor_does_not_mutate_input():
     # Verify the caller's X still has the same number of inf values (was NOT mutated)
     after = np.isinf(X.to_numpy(dtype=float)).sum()
     assert after == before, f"Input was mutated: {before} infs before, {after} infs after"
+
+
+def test_search_spaces_have_all_models():
+    spaces = pu.sklearn_search_spaces()
+    assert set(spaces) == {
+        "logistic_regression", "knn", "decision_tree",
+        "random_forest", "svm", "gbm",
+    }
+    # LogisticRegression must be configured so l1_ratio is valid (saga+elasticnet)
+    lr_pipe, lr_grid = spaces["logistic_regression"]
+    clf = lr_pipe.named_steps["clf"]
+    assert clf.get_params()["solver"] == "saga"
+    assert clf.get_params()["penalty"] == "elasticnet"
+
+
+def test_logistic_regression_fits_without_api_error():
+    # the exact call that crashed on modern sklearn must now work
+    df = pu.load_and_prep()
+    Xtr, Xte, ytr, yte = pu.make_train_test(df)
+    lr_pipe, lr_grid = pu.sklearn_search_spaces()["logistic_regression"]
+    lr_pipe.set_params(clf__l1_ratio=1.0, clf__C=1.0).fit(Xtr, ytr)  # must not raise
+
+
+def test_run_sklearn_selection_returns_fitted_best(monkeypatch):
+    df = pu.load_and_prep()
+    Xtr, Xte, ytr, yte = pu.make_train_test(df)
+    # keep it fast: restrict to two cheap models via a small monkeypatched space
+    small = {k: pu.sklearn_search_spaces()[k] for k in ["decision_tree", "gbm"]}
+    monkeypatch.setattr(pu, "sklearn_search_spaces", lambda: small)
+    out = pu.run_sklearn_selection(Xtr, ytr)
+    assert set(out) == {"decision_tree", "gbm"}
+    for name, res in out.items():
+        assert 0.5 <= res["cv_best"] <= 1.0
+        # fitted: can predict
+        assert res["estimator"].predict(Xte).shape[0] == len(yte)

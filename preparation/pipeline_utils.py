@@ -13,10 +13,15 @@ import numpy as np
 import pandas as pd
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.cluster import KMeans
+from sklearn.ensemble import GradientBoostingClassifier, RandomForestClassifier
 from sklearn.impute import SimpleImputer
-from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import GridSearchCV, StratifiedKFold, train_test_split
+from sklearn.neighbors import KNeighborsClassifier
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
+from sklearn.svm import SVC
+from sklearn.tree import DecisionTreeClassifier
 
 RANDOM_STATE = 42
 TEST_SIZE = 0.22
@@ -179,3 +184,69 @@ class ClusterFeatureAdder(BaseEstimator, TransformerMixin):
         X = np.asarray(X, dtype=float)
         labels = self.kmeans_.predict(X).reshape(-1, 1)
         return np.hstack([X, labels])
+
+
+def _pipe(estimator) -> Pipeline:
+    return Pipeline([("prep", make_preprocessor(add_clusters=True)), ("clf", estimator)])
+
+
+def sklearn_search_spaces() -> dict[str, tuple[Pipeline, dict]]:
+    """Registry of sklearn model pipelines + grids for CV-based selection.
+
+    Each pipeline is preprocessing (impute -> scale -> cluster, fold-safe) +
+    a classifier, so `GridSearchCV` can cross-validate the whole thing without
+    leaking test/validation rows into imputation, scaling, or clustering.
+
+    LogisticRegression uses solver="saga" with penalty="elasticnet" so that
+    `l1_ratio` is a valid parameter (the old default solver rejected it on
+    modern sklearn).
+    """
+    return {
+        "logistic_regression": (
+            _pipe(LogisticRegression(
+                solver="saga", penalty="elasticnet", max_iter=5000,
+                random_state=RANDOM_STATE)),
+            {"clf__C": [0.01, 0.1, 1, 4, 8], "clf__l1_ratio": [0.0, 1.0]},
+        ),
+        "knn": (
+            _pipe(KNeighborsClassifier()),
+            {"clf__n_neighbors": [2, 5, 10, 15, 20], "clf__weights": ["uniform", "distance"]},
+        ),
+        "decision_tree": (
+            _pipe(DecisionTreeClassifier(random_state=RANDOM_STATE)),
+            {"clf__max_depth": [50, 100, 200, None], "clf__min_samples_split": [2, 10, 20, 50]},
+        ),
+        "random_forest": (
+            _pipe(RandomForestClassifier(random_state=RANDOM_STATE, n_jobs=-1)),
+            {"clf__n_estimators": [100, 300, 500], "clf__max_depth": [None, 10, 50],
+             "clf__min_samples_leaf": [1, 2, 4]},
+        ),
+        "svm": (
+            _pipe(SVC(probability=True, max_iter=20000, random_state=RANDOM_STATE)),
+            {"clf__C": [1, 4], "clf__kernel": ["linear", "rbf"]},
+        ),
+        "gbm": (
+            _pipe(GradientBoostingClassifier(random_state=RANDOM_STATE)),
+            {"clf__learning_rate": [0.01, 0.05, 0.1, 0.2], "clf__n_estimators": [100, 200, 400, 800]},
+        ),
+    }
+
+
+def run_sklearn_selection(X_train, y_train, scoring: str = "accuracy") -> dict:
+    """Select the best hyperparameters per model via CV on the TRAINING set only.
+
+    Uses `GridSearchCV` with a seeded `StratifiedKFold(5)` so every candidate
+    is scored purely on training-data cross-validation; the test set is never
+    touched here (evaluation on held-out test data happens later, elsewhere).
+    """
+    cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=RANDOM_STATE)
+    results = {}
+    for name, (pipe, grid) in sklearn_search_spaces().items():
+        search = GridSearchCV(pipe, grid, scoring=scoring, cv=cv, n_jobs=-1, refit=True)
+        search.fit(X_train, y_train)
+        results[name] = {
+            "estimator": search.best_estimator_,
+            "cv_best": float(search.best_score_),
+            "params": dict(search.best_params_),
+        }
+    return results
