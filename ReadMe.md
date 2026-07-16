@@ -47,7 +47,7 @@ The objectives of this project are to:
 
 ## Quick Start to Run the Website
 ### Requirements
-- Python version: 3.10 to 3.13
+- Python version: Requires Python 3.10–3.12 (uses tensorflow 2.16.x). On Apple Silicon, install with a native-arm64 Python — the Intel tensorflow wheel aborts under Rosetta (AVX).
 - Required website dependencies are listed in `website/requirements.txt`
 - RAM: suggested at least 16 GB for model work
 - Node.js is required for future frontend developers, not required for website users/testers
@@ -252,24 +252,14 @@ Use `CSV (comma delimited)` format.
 - Seven model families were tested to evaluate predictive ability (`preparation/Run_and_Test_Models.ipynb`, `preparation/Analyze_Models.ipynb`).
 - Top 3 models were selected and tuned using hyperparameters and data engineering.
 - Feature selection used literature review, expert insight, permutation/feature importance, and PCA-based evaluation.
+- Cluster feature: an unsupervised KMeans (k=3) grouping of soil/geographic profiles, fit inside each cross-validation fold on training data only (no leakage).
 
-### Table 1: Performance Metrics For Best Model Variants (sorted by accuracy)
-| model used | scalar_status | accuracy | precision | recall | f1 |
-|---|---|---|---|---|---|
-| gbm | standard_scalar | 0.941606 | 0.959459 | 0.934211 | 0.946667 |
-| gbm | orig | 0.934307 | 0.946667 | 0.934211 | 0.940397 |
-| neural net | standard_scalar | 0.905109 | 0.956522 | 0.868421 | 0.910345 |
-| svm | standard_scalar | 0.890511 | 0.896104 | 0.907895 | 0.901961 |
-| decision_tree | orig | 0.883212 | 0.905405 | 0.881579 | 0.893333 |
-| decision_tree | standard_scalar | 0.868613 | 0.881579 | 0.881579 | 0.881579 |
-| random_forest | orig | 0.861314 | 0.880000 | 0.868421 | 0.874172 |
-| random_forest | standard_scalar | 0.861314 | 0.880000 | 0.868421 | 0.874172 |
-| logistic regression | standard_scalar | 0.846715 | 0.857143 | 0.868421 | 0.862745 |
-| knn | standard_scalar | 0.839416 | 0.875000 | 0.828947 | 0.851351 |
-| knn | orig | 0.810219 | 0.847222 | 0.802632 | 0.824324 |
-| neural net | orig | 0.715328 | 0.753425 | 0.723684 | 0.738255 |
-| logistic regression | orig | 0.656934 | 0.716418 | 0.631579 | 0.671329 |
-| svm | orig | 0.627737 | 0.676056 | 0.631579 | 0.653061 |
+### Table 1: Hold-Out Performance Metrics For Top 3 Models (sorted by accuracy)
+| model | accuracy | recall | roc_auc |
+|---|---|---|---|
+| gbm | 0.8978 | 0.8971 | 0.9567 |
+| neural_net | 0.8832 | 0.8824 | 0.9205 |
+| svm | 0.8540 | 0.8382 | 0.9309 |
 
 ### Deployment Summary
 - Top models were saved in `preparation/saving_selected_models_for_pipeline.py`
