@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+import pytest
 import preparation.pipeline_utils as pu
 
 
@@ -227,3 +228,22 @@ def test_cv_distribution_shape():
     assert set(dist) == {"mean", "std", "scores"}
     assert len(dist["scores"]) == 5
     assert 0.5 <= dist["mean"] <= 1.0
+
+
+def test_save_load_best_configs_roundtrip(tmp_path):
+    cfg = {"gbm": {"cv_best": 0.87, "params": {"clf__learning_rate": 0.2}}}
+    p = tmp_path / "best_configs.json"
+    pu.save_best_configs(cfg, p)
+    assert pu.load_best_configs(p) == cfg
+
+
+@pytest.mark.slow
+def test_select_and_evaluate_is_deterministic_and_reproduces_known_range():
+    df = pu.load_and_prep()
+    r1 = pu.select_and_evaluate(df)
+    r2 = pu.select_and_evaluate(df)
+    # deterministic hold-out accuracy for GBM across repeated runs
+    assert abs(r1["gbm"]["holdout"]["accuracy"] - r2["gbm"]["holdout"]["accuracy"]) < 1e-9
+    # sanity: matches the ~0.86-0.90 range found in the repo (NOT 0.94)
+    for name in ["gbm", "neural_net"]:
+        assert 0.80 <= r1[name]["holdout"]["accuracy"] <= 0.93

@@ -5,6 +5,7 @@ notebook, the deploy script, and (indirectly) the backend.
 """
 from __future__ import annotations
 
+import json
 import os
 import random
 from pathlib import Path
@@ -392,3 +393,64 @@ def cv_accuracy_distribution(pipeline, X_train, y_train) -> dict:
     cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=RANDOM_STATE)
     scores = cross_val_score(pipeline, X_train, y_train, scoring="accuracy", cv=cv, n_jobs=-1)
     return {"mean": float(scores.mean()), "std": float(scores.std()), "scores": scores.tolist()}
+
+
+def _default_configs_path() -> Path:
+    return project_root() / "preparation" / "data_results" / "best_configs.json"
+
+
+def save_best_configs(configs: dict, path: Path | None = None) -> None:
+    path = path or _default_configs_path()
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "w") as f:
+        json.dump(configs, f, indent=2)
+
+
+def load_best_configs(path: Path | None = None) -> dict:
+    with open(path or _default_configs_path()) as f:
+        return json.load(f)
+
+
+def select_and_evaluate(df: pd.DataFrame, add_clusters: bool = True) -> dict:
+    """Run model selection on TRAIN only, score each model's best config once on hold-out.
+
+    Selection (GridSearchCV / manual CV for the NN) sees only `X_train`/`y_train`;
+    `X_test`/`y_test` is touched exactly once per model, via `evaluate`, to avoid
+    leakage. Deterministic for the sklearn families (seeded CV + seeded estimators);
+    the NN is reseeded before its final refit but TF ops are not guaranteed
+    bit-identical across runs.
+
+    Returns:
+        {model_name: {"cv_best": float, "params": {...}, "holdout": {metrics...}}}
+    """
+    set_seeds()
+    Xtr, Xte, ytr, yte = make_train_test(df)
+
+    results: dict = {}
+
+    # sklearn families
+    sk = run_sklearn_selection(Xtr, ytr, scoring="accuracy")
+    for name, res in sk.items():
+        proba = predict_proba_any(res["estimator"], Xte)
+        results[name] = {
+            "cv_best": res["cv_best"],
+            "params": res["params"],
+            "holdout": evaluate(yte, proba),
+        }
+
+    # neural net: select params, then refit best on full train split and score once
+    nn = run_nn_selection(Xtr, ytr, scoring="accuracy")
+    set_seeds()
+    pre = make_preprocessor(add_clusters=add_clusters)
+    Xtr_t = pre.fit_transform(Xtr)
+    Xte_t = pre.transform(Xte)
+    model = build_nn(Xtr_t.shape[1], nn["params"]["n_layers"], nn["params"]["n_neurons"])
+    model.fit(Xtr_t, np.asarray(ytr), epochs=nn["params"]["epochs"],
+              batch_size=nn["params"]["batch_size"], verbose=0)
+    proba = np.asarray(model.predict(Xte_t, verbose=0)).flatten()
+    results["neural_net"] = {
+        "cv_best": nn["cv_best"],
+        "params": nn["params"],
+        "holdout": evaluate(yte, proba),
+    }
+    return results
