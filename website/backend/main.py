@@ -1,6 +1,7 @@
 import io
 import json
 import os
+import sys
 import warnings
 from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
@@ -49,6 +50,13 @@ app.add_middleware(
 
 # creating base variabels
 BASE_DIR = Path(__file__).resolve().parent
+
+# The saved preprocess_*.joblib pickle transformer classes from preparation.pipeline_utils;
+# ensure the repo root is importable no matter the launch cwd (docs launch from website/).
+_REPO_ROOT = BASE_DIR.parent.parent
+if str(_REPO_ROOT) not in sys.path:
+    sys.path.insert(0, str(_REPO_ROOT))
+
 FRONTEND_DIST_DIR = BASE_DIR.parent / "frontend" / "farm-app" / "dist"
 # creating options for model files by input variant and model family
 # each entry is a list of fallback candidates, first-existing path is used.
@@ -926,10 +934,21 @@ async def predict(
     # impute, standardize, [+cluster feature for the "soil_longlat"/main variant].
     # NOTE: preprocess.feature_names_in_ / model.feature_names_in_ do NOT exist
     # here (fit on a numpy array), so we use the persisted feature-order list.
-    with open(FEATURES_PATHS[model_variant]) as f:
-        feature_order = json.load(f)
+    cache_key = f"preprocess:{model_variant}"
+    try:
+        with open(FEATURES_PATHS[model_variant]) as f:
+            feature_order = json.load(f)
+        if cache_key in MODEL_CACHE:
+            preprocess = MODEL_CACHE[cache_key]
+        else:
+            preprocess = joblib.load(PREPROCESS_PATHS[model_variant])
+            MODEL_CACHE[cache_key] = preprocess
+    except Exception as exc:
+        raise HTTPException(
+            status_code=500, detail=f"Could not load preprocessing artifacts for '{model_variant}': {exc}"
+        ) from exc
+
     X_df = X.reindex(columns=feature_order)
-    preprocess = joblib.load(PREPROCESS_PATHS[model_variant])
     X_arr = preprocess.transform(X_df)
 
     if np.isnan(X_arr).any():
