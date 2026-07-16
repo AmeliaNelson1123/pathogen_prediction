@@ -217,3 +217,13 @@ def test_predict_proba_any_sklearn():
     proba = pu.predict_proba_any(pipe, Xte)
     assert proba.shape[0] == len(yte)
     assert ((proba >= 0) & (proba <= 1)).all()
+
+
+def test_cv_distribution_shape():
+    df = pu.load_and_prep()
+    Xtr, _, ytr, _ = pu.make_train_test(df)
+    pipe, _ = pu.sklearn_search_spaces()["decision_tree"]
+    dist = pu.cv_accuracy_distribution(pipe, Xtr, ytr)
+    assert set(dist) == {"mean", "std", "scores"}
+    assert len(dist["scores"]) == 5
+    assert 0.5 <= dist["mean"] <= 1.0

@@ -20,7 +20,7 @@ from sklearn.metrics import (
     accuracy_score, precision_score, recall_score, f1_score,
     confusion_matrix, roc_auc_score, average_precision_score,
 )
-from sklearn.model_selection import GridSearchCV, StratifiedKFold, train_test_split
+from sklearn.model_selection import GridSearchCV, StratifiedKFold, cross_val_score, train_test_split
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
@@ -369,3 +369,26 @@ def evaluate(y_true, y_proba, threshold: float = 0.5) -> dict:
         "pr_auc": float(average_precision_score(y_true, y_proba)),
         "confusion_matrix": cm.tolist(),
     }
+
+
+def cv_accuracy_distribution(pipeline, X_train, y_train) -> dict:
+    """Compute cross-validated accuracy distribution via stratified k-fold.
+
+    Uses StratifiedKFold(n_splits=5, shuffle=True, random_state=RANDOM_STATE)
+    and cross_val_score with accuracy scoring to assess model robustness and
+    show overlap within noise (e.g., DT vs RF comparison).
+
+    Args:
+        pipeline: A fitted sklearn pipeline or estimator.
+        X_train: Training feature matrix.
+        y_train: Training binary labels (0/1).
+
+    Returns:
+        Dict with keys:
+        - "mean": float, mean cross-validated accuracy
+        - "std": float, standard deviation of cv scores
+        - "scores": list[float], individual fold scores (5 scores)
+    """
+    cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=RANDOM_STATE)
+    scores = cross_val_score(pipeline, X_train, y_train, scoring="accuracy", cv=cv, n_jobs=-1)
+    return {"mean": float(scores.mean()), "std": float(scores.std()), "scores": scores.tolist()}
