@@ -9,3 +9,5 @@ earthengine-api==1.7.15
 certifi==2026.2.25
 truststore==0.10.4
 tensorflow==2.16.2
+# Python 3.12 removed stdlib 'distutils'; setuptools provides the shim tensorflow 2.16 imports.
+setuptools>=69

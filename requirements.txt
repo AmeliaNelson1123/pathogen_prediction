@@ -7,3 +7,6 @@ plotly==5.22.0
 scikit-learn==1.4.0
 tensorflow==2.16.2
 joblib==1.4.2
+# Python 3.12 removed the stdlib 'distutils'; setuptools provides the shim tensorflow 2.16 imports.
+# (Harmless on 3.10/3.11 where distutils still ships.)
+setuptools>=69
